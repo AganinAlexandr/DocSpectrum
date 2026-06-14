@@ -57,6 +57,19 @@ TEI_CANONICAL_FIELDS = [
     "build_year",
 ]
 
+TEI_CONSISTENCY_FIELDS = [
+    "entrances_count",
+    "floors_count",
+    "apartments_count",
+    "length_m",
+    "width_m",
+    "height_m",
+    "footprint_area_m2",
+    "building_volume_m3",
+    "total_area_m2",
+    "build_year",
+]
+
 
 @dataclass(frozen=True)
 class RegistryRow:
@@ -295,6 +308,77 @@ def write_csv(path: Path, rows: Iterable[dict[str, object]], fieldnames: list[st
             writer.writerow(row)
 
 
+def build_object_tei_overview(object_rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    fields = [
+        "object_id",
+        "project_subgroup",
+        "address_normalized",
+        "tei_norm_floors_count",
+        "tei_norm_entrances_count",
+        "tei_norm_total_area_m2",
+        "tei_norm_footprint_area_m2",
+        "tei_norm_building_volume_m3",
+        "registry_status",
+    ]
+    return [{field: row.get(field, "") for field in fields} for row in object_rows]
+
+
+def build_address_tei_consistency(object_rows: list[dict[str, object]]) -> list[dict[str, object]]:
+    by_address: dict[str, list[dict[str, object]]] = {}
+    for row in object_rows:
+        address = str(row.get("address_normalized", "")).strip()
+        if address:
+            by_address.setdefault(address, []).append(row)
+
+    result: list[dict[str, object]] = []
+    for address, rows in sorted(by_address.items()):
+        if len(rows) < 2:
+            continue
+
+        field_values: dict[str, dict[str, list[str]]] = {}
+        mismatch_fields: list[str] = []
+        missing_fields: list[str] = []
+
+        for field in TEI_CONSISTENCY_FIELDS:
+            column = f"tei_norm_{field}"
+            values: dict[str, list[str]] = {}
+            missing_objects: list[str] = []
+            for row in rows:
+                object_id = str(row.get("object_id", ""))
+                value = str(row.get(column, "")).strip()
+                if not value:
+                    missing_objects.append(object_id)
+                    continue
+                values.setdefault(value, []).append(object_id)
+            field_values[field] = values
+            if len(values) > 1:
+                mismatch_fields.append(field)
+            if missing_objects and values:
+                missing_fields.append(field)
+
+        if mismatch_fields:
+            status = "inconsistent"
+        elif missing_fields:
+            status = "partial"
+        else:
+            status = "consistent"
+
+        result.append(
+            {
+                "address_normalized": address,
+                "object_count": len(rows),
+                "object_ids": ";".join(str(row.get("object_id", "")) for row in rows),
+                "subgroups": ";".join(str(row.get("project_subgroup", "")) for row in rows),
+                "consistency_status": status,
+                "mismatch_fields": ";".join(mismatch_fields),
+                "partial_fields": ";".join(missing_fields),
+                "field_values_json": json.dumps(field_values, ensure_ascii=False, sort_keys=True),
+            }
+        )
+
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build DocSpectrum object registry v0 from Excel and TEI XML.")
     parser.add_argument("--input-xlsx", type=Path, default=DEFAULT_INPUT_XLSX)
@@ -377,6 +461,37 @@ def main() -> int:
     object_rows = [{field: row.get(field, "") for field in wide_fields} for row in object_rows]
 
     write_csv(args.output_dir / "object_registry_v0.csv", object_rows, wide_fields)
+    object_tei_overview = build_object_tei_overview(object_rows)
+    write_csv(
+        args.output_dir / "object_tei_overview_v0.csv",
+        object_tei_overview,
+        [
+            "object_id",
+            "project_subgroup",
+            "address_normalized",
+            "tei_norm_floors_count",
+            "tei_norm_entrances_count",
+            "tei_norm_total_area_m2",
+            "tei_norm_footprint_area_m2",
+            "tei_norm_building_volume_m3",
+            "registry_status",
+        ],
+    )
+    address_tei_consistency = build_address_tei_consistency(object_rows)
+    write_csv(
+        args.output_dir / "address_tei_consistency_v0.csv",
+        address_tei_consistency,
+        [
+            "address_normalized",
+            "object_count",
+            "object_ids",
+            "subgroups",
+            "consistency_status",
+            "mismatch_fields",
+            "partial_fields",
+            "field_values_json",
+        ],
+    )
     write_csv(
         args.output_dir / "object_tei_long_v0.csv",
         tei_long_rows,
@@ -410,8 +525,14 @@ def main() -> int:
         },
         "tei_names": tei_names,
         "tei_canonical_fields": TEI_CANONICAL_FIELDS,
+        "same_address_group_count": len(address_tei_consistency),
+        "same_address_inconsistent_count": sum(
+            1 for row in address_tei_consistency if row["consistency_status"] == "inconsistent"
+        ),
         "outputs": [
             str(args.output_dir / "object_registry_v0.csv"),
+            str(args.output_dir / "object_tei_overview_v0.csv"),
+            str(args.output_dir / "address_tei_consistency_v0.csv"),
             str(args.output_dir / "object_tei_long_v0.csv"),
             str(args.output_dir / "object_registry_v0.jsonl"),
         ],
