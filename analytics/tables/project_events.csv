@@ -1,0 +1,9 @@
+event_date,event_order,stage,event_type,title,artifact,notes
+2026-06-13,1,concept,decision,Project name selected,DocSpectrum,Selected DocSpectrum as the project name
+2026-06-14,1,validation,input,Podolsk UUiR validation group selected,E:/commons/DocSpectrum/Капремонт_дома_УУиР_Подольск.xlsx,35 candidate objects for one design organization
+2026-06-14,2,validation,input,First pair selected,1724_25 / 1725_25,Simferopolskaya 11 GVS/OT pair
+2026-06-14,3,element_base,artifact,element_base_v0 generated,samples/element_base_v0,16 section passports generated from explorer exports
+2026-06-14,4,comparison,artifact,comparison_results_v0 generated,samples/comparison_results_v0,Fast same-section comparison for 8 pairs
+2026-06-14,5,comparison,artifact,detailed_comparison_results_v0 generated,samples/detailed_comparison_results_v0,Detailed comparison for 8 pairs with feature/page/table/text-hash axes
+2026-06-14,6,method,decision,Centered subvector cosine added,tools/build_detailed_comparison_v0.py,Raw cosine alone is not enough when dominant vector components are not normalized
+2026-06-15,1,workflow,decision,Collaboration workflow v2 accepted for DocSpectrum,E:/repos/checker-shared-project/docs/06_decisions.md,DocSpectrum: Codex generator / Opus reviewer / human strategic owner

@@ -1,0 +1,34 @@
+{
+  "schema_version": "element_base_v0",
+  "generated_at": "2026-06-14T14:22:43+00:00",
+  "source_export_root": "E:\\output\\DocSpectrum\\export",
+  "output_dir": "E:\\repos\\DocSpectrum\\samples\\element_base_v0",
+  "bundle_count": 16,
+  "object_count": 2,
+  "section_counts": {
+    "АР": 2,
+    "КР": 2,
+    "ПОКР": 2,
+    "ИД": 2,
+    "ИОС5.1": 2,
+    "ИОС5.4.1": 2,
+    "ИОС5.5.1": 2,
+    "СМ": 2
+  },
+  "total_pages": 384,
+  "total_elements": 158938,
+  "total_text_segments": 37230,
+  "total_tables": 253,
+  "total_table_cells": 11415,
+  "total_images": 343,
+  "files": {
+    "documents_index": "documents_index.csv",
+    "feature_matrix": "feature_matrix_v0.csv",
+    "page_signatures": "page_signatures_v0.csv",
+    "table_signatures": "table_signatures_v0.csv",
+    "corpus_signatures": "corpus_signatures_v0.csv",
+    "comparison_pairs": "comparison_pairs_v0.csv",
+    "section_passports": "section_passports/*.json"
+  },
+  "v0_interpretation": "Experimental element base for validating the DocSpectrum measurement approach. It may be rebuilt when a larger corpus suggests better element groups and features."
+}

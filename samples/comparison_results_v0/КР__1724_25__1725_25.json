@@ -1,0 +1,134 @@
+{
+  "schema_version": "comparison_result_v0",
+  "generated_at": "2026-06-14T14:24:16+00:00",
+  "pair_id": "КР__1724_25__1725_25",
+  "comparison_mode": "same_section_pair_v0",
+  "section_code": "КР",
+  "left": {
+    "object_id": "1724_25",
+    "bundle_id": "doc_a624e984",
+    "crc32": "A624E984",
+    "file_name": "Раздел ПД N 4  КР_ул. Симферопольская, д. 11.pdf"
+  },
+  "right": {
+    "object_id": "1725_25",
+    "bundle_id": "doc_93cc45b2",
+    "crc32": "93CC45B2",
+    "file_name": "Раздел ПД N 4  КР_ул. Симферопольская, д. 11.pdf"
+  },
+  "similarity_summary": {
+    "weighted_similarity_v0": 0.8452,
+    "feature_cosine_v0": 0.9999,
+    "page_signature_jaccard": 0.5833,
+    "table_layout_jaccard": 0.7143,
+    "table_content_jaccard": 0.7143,
+    "coverage": {
+      "numeric_features": 18,
+      "axes": [
+        "feature_vector",
+        "page_signature",
+        "table_layout",
+        "table_content"
+      ]
+    }
+  },
+  "shared_signatures": {
+    "pages_top": [
+      {
+        "signature": "136d11703cbc0d891837926f19f535ea75e2cfe0",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "2d02ba7d2962327e0a34710781020ce55b2eb755",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "2d29b0dfc5c95819c3a500631164e69626819e35",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "2e279aace9f223512f885f68e6eb6c0b9cd82444",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "62bed261e514dc49f27e081781bfefe4e60f7a68",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "aa5509cb1b8388b0ff867a7b2023cf0d0f3da4e1",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "ab32d4c9c4b6dceb67be5adde309958664a65584",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_layouts_top": [
+      {
+        "signature": "2b31a4437e93cdfa205f1fd99df15ece0d21de8d",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "111c60d9fa3b0b7d0636ee3f9c8f07d350ed2c73",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "44462779ede31506fdf1b4d0626e387e4cda8745",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "a8dc5168fa86f5b10c95b1ac591dd834de0393da",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_content_top": [
+      {
+        "signature": "2b6346809c816faa519fa0b65122f5420979d0bd",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "521dc81fb4c10bc27141e74c44053d70c06acce9",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "53df78d309fb73c047c95e53b570b27391f90e28",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "5adf10756609caf15c11c208e512238c5505102b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ]
+  },
+  "v0_note": "This result is an exploratory measurement, not a final expert conclusion. Weights and feature sets are intentionally simple."
+}

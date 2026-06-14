@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-06-14T21:57:16+00:00",
+  "output_path": "E:\\repos\\DocSpectrum\\analytics\\excel\\DocSpectrum_dynamics_v0.xlsx",
+  "sheets": [
+    {
+      "sheet": "Readme",
+      "row_count": 3
+    },
+    {
+      "sheet": "Project_Events",
+      "row_count": 8
+    },
+    {
+      "sheet": "Feature_Matrix",
+      "row_count": 16
+    },
+    {
+      "sheet": "Comparison_Detailed",
+      "row_count": 8
+    },
+    {
+      "sheet": "Comparison_Fast",
+      "row_count": 8
+    },
+    {
+      "sheet": "Corpus_Signatures",
+      "row_count": 190
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "detailed_comparison_results_v0_index",
+  "generated_at": "2026-06-14T15:49:34+00:00",
+  "base_dir": "E:\\repos\\DocSpectrum\\samples\\element_base_v0",
+  "export_root": "E:\\output\\DocSpectrum\\export",
+  "output_dir": "E:\\repos\\DocSpectrum\\samples\\detailed_comparison_results_v0",
+  "pair_count": 8,
+  "sections": [
+    "АР",
+    "КР",
+    "ПОКР",
+    "ИД",
+    "ИОС5.1",
+    "ИОС5.4.1",
+    "ИОС5.5.1",
+    "СМ"
+  ],
+  "files": {
+    "summary": "detailed_comparison_results_v0.csv",
+    "pair_json": "*.json"
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "schema_version": "comparison_result_v0",
+  "generated_at": "2026-06-14T14:24:16+00:00",
+  "pair_id": "ПОКР__1724_25__1725_25",
+  "comparison_mode": "same_section_pair_v0",
+  "section_code": "ПОКР",
+  "left": {
+    "object_id": "1724_25",
+    "bundle_id": "doc_34536dc1",
+    "crc32": "34536DC1",
+    "file_name": "Раздел ПД N 7 ПОКР_ул. Симферопольская, д. 11.pdf"
+  },
+  "right": {
+    "object_id": "1725_25",
+    "bundle_id": "doc_32fcaa56",
+    "crc32": "32FCAA56",
+    "file_name": "Раздел ПД N 7 ПОКР_ул. Симферопольская, д. 11.pdf"
+  },
+  "similarity_summary": {
+    "weighted_similarity_v0": 0.8322,
+    "feature_cosine_v0": 1.0,
+    "page_signature_jaccard": 0.3611,
+    "table_layout_jaccard": 1.0,
+    "table_content_jaccard": 0.6,
+    "coverage": {
+      "numeric_features": 18,
+      "axes": [
+        "feature_vector",
+        "page_signature",
+        "table_layout",
+        "table_content"
+      ]
+    }
+  },
+  "shared_signatures": {
+    "pages_top": [
+      {
+        "signature": "1d36ae478e03ccc99fd530c51f16d1bb54777ba1",
+        "left_count": 4,
+        "right_count": 4,
+        "shared_count": 4
+      },
+      {
+        "signature": "11f5face6384518dcc945d6dcd3d499384c4dd72",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "2afd3a067283580f098845e86e204724c50053b1",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "438d1bb2153a6e35e95b165f65118b30294cc45b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "6a19d2e30ca8f6f343a9bd6f8ce6a1bba598cd46",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "96e554a499f7ceb332c251668cf1c27814db3920",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "b96a67b6daafe73e10374be9d844bbc55a051554",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "ca3578b9506e531d7e638d91811740cdbc24e6c9",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "e8f1ee2d0479a1e1efbe81d1602fb898eadef84d",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "fe17d50965fe87156cb1323aa96cf2bd736b2974",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_layouts_top": [
+      {
+        "signature": "2b31a4437e93cdfa205f1fd99df15ece0d21de8d",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "44462779ede31506fdf1b4d0626e387e4cda8745",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4d89bc82f8a689090fbbde5daa46b89f5a6d1fa1",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "57ac50dd7a4b74f41c826a3b3321170684fa1898",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "98f78b64a100c28daf3cb9e3e30207f87452ce18",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "b01269500728e551e08c248d79cea3c41da32610",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "f48d565484ac0c835e56ad4139f0e3b7e78a1457",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_content_top": [
+      {
+        "signature": "2b6346809c816faa519fa0b65122f5420979d0bd",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "0439fb01b0416c44ae30acbcb5d5ba94216a43e2",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "5adf10756609caf15c11c208e512238c5505102b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "6e78fa2080b7215dcada273d6731ff82988b12cb",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "a0ed09a716401e652ced90bc7545b854de58d960",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ]
+  },
+  "v0_note": "This result is an exploratory measurement, not a final expert conclusion. Weights and feature sets are intentionally simple."
+}

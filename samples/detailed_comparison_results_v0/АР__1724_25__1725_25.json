@@ -1,0 +1,1554 @@
+{
+  "schema_version": "detailed_comparison_result_v0",
+  "generated_at": "2026-06-14T15:49:34+00:00",
+  "pair_id": "АР__1724_25__1725_25",
+  "comparison_mode": "same_section_pair_v0",
+  "section_code": "АР",
+  "left": {
+    "object_id": "1724_25",
+    "bundle_id": "doc_984f5a08",
+    "crc32": "984F5A08",
+    "file_name": "Раздел ПД N 3  АР_ул. Симферопольская, д. 11.pdf"
+  },
+  "right": {
+    "object_id": "1725_25",
+    "bundle_id": "doc_96e96f2d",
+    "crc32": "96E96F2D",
+    "file_name": "Раздел ПД N 3  АР_ул. Симферопольская, д. 11.pdf"
+  },
+  "similarity_summary": {
+    "detailed_similarity_v0": 0.7725,
+    "feature_cosine_v0": 0.9999,
+    "feature_subvector_cosines": {
+      "volume": {
+        "cosine": 1.0,
+        "centered_cosine": 0.9999,
+        "mean_abs_relative_delta": 0.0396,
+        "max_abs_relative_delta": 0.1111,
+        "feature_count": 4,
+        "features": [
+          "page_count",
+          "element_count",
+          "visible_element_count",
+          "layer_count"
+        ]
+      },
+      "density": {
+        "cosine": 1.0,
+        "centered_cosine": 0.9903,
+        "mean_abs_relative_delta": 0.0301,
+        "max_abs_relative_delta": 0.0895,
+        "feature_count": 3,
+        "features": [
+          "elements_per_page",
+          "max_elements_on_page",
+          "max_text_segments_on_page"
+        ]
+      },
+      "text": {
+        "cosine": 1.0,
+        "centered_cosine": 0.9999,
+        "mean_abs_relative_delta": 0.0208,
+        "max_abs_relative_delta": 0.0989,
+        "feature_count": 7,
+        "features": [
+          "text_segment_count",
+          "total_text_chars",
+          "total_text_words",
+          "text_segments_per_page",
+          "text_segment_ratio",
+          "group_text_count",
+          "group_text_ratio"
+        ]
+      },
+      "tables": {
+        "cosine": 0.9999,
+        "centered_cosine": 0.9965,
+        "mean_abs_relative_delta": 0.0226,
+        "max_abs_relative_delta": 0.1111,
+        "feature_count": 8,
+        "features": [
+          "table_count",
+          "table_cell_count",
+          "tables_per_page",
+          "table_cells_per_page",
+          "table_cells_per_table",
+          "table_ratio",
+          "group_tables_count",
+          "group_tables_ratio"
+        ]
+      },
+      "graphics": {
+        "cosine": 1.0,
+        "centered_cosine": 0.9984,
+        "mean_abs_relative_delta": 0.0218,
+        "max_abs_relative_delta": 0.0833,
+        "feature_count": 11,
+        "features": [
+          "image_count",
+          "images_per_page",
+          "image_ratio",
+          "group_images_count",
+          "group_images_ratio",
+          "group_lines_count",
+          "group_lines_ratio",
+          "group_frames_count",
+          "group_frames_ratio",
+          "group_other_vector_count",
+          "group_other_vector_ratio"
+        ]
+      },
+      "element_mix": {
+        "cosine": 1.0,
+        "centered_cosine": 0.9995,
+        "mean_abs_relative_delta": 0.0012,
+        "max_abs_relative_delta": 0.0036,
+        "feature_count": 6,
+        "features": [
+          "group_text_ratio",
+          "group_lines_ratio",
+          "group_frames_ratio",
+          "group_images_ratio",
+          "group_tables_ratio",
+          "group_other_vector_ratio"
+        ]
+      }
+    },
+    "page_signature_jaccard": 0.4167,
+    "table_layout_jaccard": 0.6667,
+    "table_content_jaccard": 0.6667,
+    "exact_text_segment_jaccard": 0.9281,
+    "coverage": {
+      "numeric_features": 18,
+      "feature_delta_count": 34,
+      "feature_subvectors": {
+        "volume": 4,
+        "density": 3,
+        "text": 7,
+        "tables": 8,
+        "graphics": 11,
+        "element_mix": 6
+      },
+      "axes": [
+        "feature_vector",
+        "feature_subvectors",
+        "page_signature",
+        "table_layout",
+        "table_content",
+        "exact_text_segments"
+      ]
+    }
+  },
+  "axis_breakdown": {
+    "feature_vector": {
+      "cosine": 0.9999,
+      "subvector_cosines": {
+        "volume": {
+          "cosine": 1.0,
+          "centered_cosine": 0.9999,
+          "mean_abs_relative_delta": 0.0396,
+          "max_abs_relative_delta": 0.1111,
+          "feature_count": 4,
+          "features": [
+            "page_count",
+            "element_count",
+            "visible_element_count",
+            "layer_count"
+          ]
+        },
+        "density": {
+          "cosine": 1.0,
+          "centered_cosine": 0.9903,
+          "mean_abs_relative_delta": 0.0301,
+          "max_abs_relative_delta": 0.0895,
+          "feature_count": 3,
+          "features": [
+            "elements_per_page",
+            "max_elements_on_page",
+            "max_text_segments_on_page"
+          ]
+        },
+        "text": {
+          "cosine": 1.0,
+          "centered_cosine": 0.9999,
+          "mean_abs_relative_delta": 0.0208,
+          "max_abs_relative_delta": 0.0989,
+          "feature_count": 7,
+          "features": [
+            "text_segment_count",
+            "total_text_chars",
+            "total_text_words",
+            "text_segments_per_page",
+            "text_segment_ratio",
+            "group_text_count",
+            "group_text_ratio"
+          ]
+        },
+        "tables": {
+          "cosine": 0.9999,
+          "centered_cosine": 0.9965,
+          "mean_abs_relative_delta": 0.0226,
+          "max_abs_relative_delta": 0.1111,
+          "feature_count": 8,
+          "features": [
+            "table_count",
+            "table_cell_count",
+            "tables_per_page",
+            "table_cells_per_page",
+            "table_cells_per_table",
+            "table_ratio",
+            "group_tables_count",
+            "group_tables_ratio"
+          ]
+        },
+        "graphics": {
+          "cosine": 1.0,
+          "centered_cosine": 0.9984,
+          "mean_abs_relative_delta": 0.0218,
+          "max_abs_relative_delta": 0.0833,
+          "feature_count": 11,
+          "features": [
+            "image_count",
+            "images_per_page",
+            "image_ratio",
+            "group_images_count",
+            "group_images_ratio",
+            "group_lines_count",
+            "group_lines_ratio",
+            "group_frames_count",
+            "group_frames_ratio",
+            "group_other_vector_count",
+            "group_other_vector_ratio"
+          ]
+        },
+        "element_mix": {
+          "cosine": 1.0,
+          "centered_cosine": 0.9995,
+          "mean_abs_relative_delta": 0.0012,
+          "max_abs_relative_delta": 0.0036,
+          "feature_count": 6,
+          "features": [
+            "group_text_ratio",
+            "group_lines_ratio",
+            "group_frames_ratio",
+            "group_images_ratio",
+            "group_tables_ratio",
+            "group_other_vector_ratio"
+          ]
+        }
+      },
+      "largest_deltas_top": [
+        {
+          "feature": "page_count",
+          "left_value": 9.0,
+          "right_value": 8.0,
+          "delta_right_minus_left": -1.0,
+          "relative_delta": -0.1111,
+          "abs_relative_delta": 0.1111
+        },
+        {
+          "feature": "table_cells_per_page",
+          "left_value": 13.7778,
+          "right_value": 15.5,
+          "delta_right_minus_left": 1.7222,
+          "relative_delta": 0.1111,
+          "abs_relative_delta": 0.1111
+        },
+        {
+          "feature": "text_segments_per_page",
+          "left_value": 24.6667,
+          "right_value": 27.375,
+          "delta_right_minus_left": 2.7083,
+          "relative_delta": 0.0989,
+          "abs_relative_delta": 0.0989
+        },
+        {
+          "feature": "elements_per_page",
+          "left_value": 712.8889,
+          "right_value": 783.0,
+          "delta_right_minus_left": 70.1111,
+          "relative_delta": 0.0895,
+          "abs_relative_delta": 0.0895
+        },
+        {
+          "feature": "image_count",
+          "left_value": 12.0,
+          "right_value": 11.0,
+          "delta_right_minus_left": -1.0,
+          "relative_delta": -0.0833,
+          "abs_relative_delta": 0.0833
+        },
+        {
+          "feature": "group_images_count",
+          "left_value": 14.0,
+          "right_value": 13.0,
+          "delta_right_minus_left": -1.0,
+          "relative_delta": -0.0714,
+          "abs_relative_delta": 0.0714
+        },
+        {
+          "feature": "tables_per_page",
+          "left_value": 0.5556,
+          "right_value": 0.625,
+          "delta_right_minus_left": 0.0694,
+          "relative_delta": 0.0694,
+          "abs_relative_delta": 0.0694
+        },
+        {
+          "feature": "group_other_vector_count",
+          "left_value": 3248.0,
+          "right_value": 3148.0,
+          "delta_right_minus_left": -100.0,
+          "relative_delta": -0.0308,
+          "abs_relative_delta": 0.0308
+        },
+        {
+          "feature": "images_per_page",
+          "left_value": 1.3333,
+          "right_value": 1.375,
+          "delta_right_minus_left": 0.0417,
+          "relative_delta": 0.0303,
+          "abs_relative_delta": 0.0303
+        },
+        {
+          "feature": "element_count",
+          "left_value": 6416.0,
+          "right_value": 6264.0,
+          "delta_right_minus_left": -152.0,
+          "relative_delta": -0.0237,
+          "abs_relative_delta": 0.0237
+        },
+        {
+          "feature": "visible_element_count",
+          "left_value": 6416.0,
+          "right_value": 6264.0,
+          "delta_right_minus_left": -152.0,
+          "relative_delta": -0.0237,
+          "abs_relative_delta": 0.0237
+        },
+        {
+          "feature": "group_lines_count",
+          "left_value": 2910.0,
+          "right_value": 2862.0,
+          "delta_right_minus_left": -48.0,
+          "relative_delta": -0.0165,
+          "abs_relative_delta": 0.0165
+        },
+        {
+          "feature": "group_text_count",
+          "left_value": 222.0,
+          "right_value": 219.0,
+          "delta_right_minus_left": -3.0,
+          "relative_delta": -0.0135,
+          "abs_relative_delta": 0.0135
+        },
+        {
+          "feature": "text_segment_count",
+          "left_value": 222.0,
+          "right_value": 219.0,
+          "delta_right_minus_left": -3.0,
+          "relative_delta": -0.0135,
+          "abs_relative_delta": 0.0135
+        },
+        {
+          "feature": "total_text_chars",
+          "left_value": 7398.0,
+          "right_value": 7328.0,
+          "delta_right_minus_left": -70.0,
+          "relative_delta": -0.0095,
+          "abs_relative_delta": 0.0095
+        }
+      ],
+      "all_deltas": [
+        {
+          "feature": "page_count",
+          "left_value": 9.0,
+          "right_value": 8.0,
+          "delta_right_minus_left": -1.0,
+          "relative_delta": -0.1111,
+          "abs_relative_delta": 0.1111
+        },
+        {
+          "feature": "table_cells_per_page",
+          "left_value": 13.7778,
+          "right_value": 15.5,
+          "delta_right_minus_left": 1.7222,
+          "relative_delta": 0.1111,
+          "abs_relative_delta": 0.1111
+        },
+        {
+          "feature": "text_segments_per_page",
+          "left_value": 24.6667,
+          "right_value": 27.375,
+          "delta_right_minus_left": 2.7083,
+          "relative_delta": 0.0989,
+          "abs_relative_delta": 0.0989
+        },
+        {
+          "feature": "elements_per_page",
+          "left_value": 712.8889,
+          "right_value": 783.0,
+          "delta_right_minus_left": 70.1111,
+          "relative_delta": 0.0895,
+          "abs_relative_delta": 0.0895
+        },
+        {
+          "feature": "image_count",
+          "left_value": 12.0,
+          "right_value": 11.0,
+          "delta_right_minus_left": -1.0,
+          "relative_delta": -0.0833,
+          "abs_relative_delta": 0.0833
+        },
+        {
+          "feature": "group_images_count",
+          "left_value": 14.0,
+          "right_value": 13.0,
+          "delta_right_minus_left": -1.0,
+          "relative_delta": -0.0714,
+          "abs_relative_delta": 0.0714
+        },
+        {
+          "feature": "tables_per_page",
+          "left_value": 0.5556,
+          "right_value": 0.625,
+          "delta_right_minus_left": 0.0694,
+          "relative_delta": 0.0694,
+          "abs_relative_delta": 0.0694
+        },
+        {
+          "feature": "group_other_vector_count",
+          "left_value": 3248.0,
+          "right_value": 3148.0,
+          "delta_right_minus_left": -100.0,
+          "relative_delta": -0.0308,
+          "abs_relative_delta": 0.0308
+        },
+        {
+          "feature": "images_per_page",
+          "left_value": 1.3333,
+          "right_value": 1.375,
+          "delta_right_minus_left": 0.0417,
+          "relative_delta": 0.0303,
+          "abs_relative_delta": 0.0303
+        },
+        {
+          "feature": "element_count",
+          "left_value": 6416.0,
+          "right_value": 6264.0,
+          "delta_right_minus_left": -152.0,
+          "relative_delta": -0.0237,
+          "abs_relative_delta": 0.0237
+        },
+        {
+          "feature": "visible_element_count",
+          "left_value": 6416.0,
+          "right_value": 6264.0,
+          "delta_right_minus_left": -152.0,
+          "relative_delta": -0.0237,
+          "abs_relative_delta": 0.0237
+        },
+        {
+          "feature": "group_lines_count",
+          "left_value": 2910.0,
+          "right_value": 2862.0,
+          "delta_right_minus_left": -48.0,
+          "relative_delta": -0.0165,
+          "abs_relative_delta": 0.0165
+        },
+        {
+          "feature": "group_text_count",
+          "left_value": 222.0,
+          "right_value": 219.0,
+          "delta_right_minus_left": -3.0,
+          "relative_delta": -0.0135,
+          "abs_relative_delta": 0.0135
+        },
+        {
+          "feature": "text_segment_count",
+          "left_value": 222.0,
+          "right_value": 219.0,
+          "delta_right_minus_left": -3.0,
+          "relative_delta": -0.0135,
+          "abs_relative_delta": 0.0135
+        },
+        {
+          "feature": "total_text_chars",
+          "left_value": 7398.0,
+          "right_value": 7328.0,
+          "delta_right_minus_left": -70.0,
+          "relative_delta": -0.0095,
+          "abs_relative_delta": 0.0095
+        },
+        {
+          "feature": "total_text_words",
+          "left_value": 876.0,
+          "right_value": 868.0,
+          "delta_right_minus_left": -8.0,
+          "relative_delta": -0.0091,
+          "abs_relative_delta": 0.0091
+        },
+        {
+          "feature": "group_other_vector_ratio",
+          "left_value": 0.5062,
+          "right_value": 0.5026,
+          "delta_right_minus_left": -0.0036,
+          "relative_delta": -0.0036,
+          "abs_relative_delta": 0.0036
+        },
+        {
+          "feature": "group_lines_ratio",
+          "left_value": 0.4536,
+          "right_value": 0.4569,
+          "delta_right_minus_left": 0.0033,
+          "relative_delta": 0.0033,
+          "abs_relative_delta": 0.0033
+        },
+        {
+          "feature": "max_elements_on_page",
+          "left_value": 6010.0,
+          "right_value": 6005.0,
+          "delta_right_minus_left": -5.0,
+          "relative_delta": -0.0008,
+          "abs_relative_delta": 0.0008
+        },
+        {
+          "feature": "group_text_ratio",
+          "left_value": 0.0346,
+          "right_value": 0.035,
+          "delta_right_minus_left": 0.0004,
+          "relative_delta": 0.0004,
+          "abs_relative_delta": 0.0004
+        },
+        {
+          "feature": "text_segment_ratio",
+          "left_value": 0.0346,
+          "right_value": 0.035,
+          "delta_right_minus_left": 0.0004,
+          "relative_delta": 0.0004,
+          "abs_relative_delta": 0.0004
+        },
+        {
+          "feature": "group_frames_ratio",
+          "left_value": 0.0026,
+          "right_value": 0.0027,
+          "delta_right_minus_left": 0.0001,
+          "relative_delta": 0.0001,
+          "abs_relative_delta": 0.0001
+        },
+        {
+          "feature": "group_images_ratio",
+          "left_value": 0.0022,
+          "right_value": 0.0021,
+          "delta_right_minus_left": -0.0001,
+          "relative_delta": -0.0001,
+          "abs_relative_delta": 0.0001
+        },
+        {
+          "feature": "image_ratio",
+          "left_value": 0.0019,
+          "right_value": 0.0018,
+          "delta_right_minus_left": -0.0001,
+          "relative_delta": -0.0001,
+          "abs_relative_delta": 0.0001
+        },
+        {
+          "feature": "broken_encoding_count",
+          "left_value": 0.0,
+          "right_value": 0.0,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "group_frames_count",
+          "left_value": 17.0,
+          "right_value": 17.0,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "group_tables_count",
+          "left_value": 5.0,
+          "right_value": 5.0,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "group_tables_ratio",
+          "left_value": 0.0008,
+          "right_value": 0.0008,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "layer_count",
+          "left_value": 22.0,
+          "right_value": 22.0,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "max_text_segments_on_page",
+          "left_value": 65.0,
+          "right_value": 65.0,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "table_cell_count",
+          "left_value": 124.0,
+          "right_value": 124.0,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "table_cells_per_table",
+          "left_value": 24.8,
+          "right_value": 24.8,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "table_count",
+          "left_value": 5.0,
+          "right_value": 5.0,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        },
+        {
+          "feature": "table_ratio",
+          "left_value": 0.0008,
+          "right_value": 0.0008,
+          "delta_right_minus_left": 0.0,
+          "relative_delta": 0.0,
+          "abs_relative_delta": 0.0
+        }
+      ]
+    },
+    "page_signatures": {
+      "jaccard": 0.4167,
+      "shared_signature_count": 5,
+      "left_unique_signature_count": 9,
+      "right_unique_signature_count": 8,
+      "left_only_signature_count": 4,
+      "right_only_signature_count": 3,
+      "shared_top": [
+        {
+          "signature": "1d6909dc81d3ad71ef4b066f9cf854f698eb3aaa",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "page_number": 7,
+              "page_size_key": "595.2x842.0r0",
+              "element_count": 14,
+              "text_count": 12,
+              "line_count": 0,
+              "frame_count": 1,
+              "image_count": 1,
+              "table_count": 0
+            }
+          ],
+          "right_refs": [
+            {
+              "page_number": 7,
+              "page_size_key": "595.2x842.0r0",
+              "element_count": 14,
+              "text_count": 12,
+              "line_count": 0,
+              "frame_count": 1,
+              "image_count": 1,
+              "table_count": 0
+            }
+          ]
+        },
+        {
+          "signature": "22f52e8ba656134735f2a5cbf8094db660e10be9",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "page_number": 6,
+              "page_size_key": "595.2x842.0r0",
+              "element_count": 41,
+              "text_count": 39,
+              "line_count": 0,
+              "frame_count": 1,
+              "image_count": 1,
+              "table_count": 0
+            }
+          ],
+          "right_refs": [
+            {
+              "page_number": 6,
+              "page_size_key": "595.2x842.0r0",
+              "element_count": 41,
+              "text_count": 39,
+              "line_count": 0,
+              "frame_count": 1,
+              "image_count": 1,
+              "table_count": 0
+            }
+          ]
+        },
+        {
+          "signature": "97483ede1404985afb1243174d5ea78870acced5",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "page_number": 4,
+              "page_size_key": "595.3x841.9r0",
+              "element_count": 69,
+              "text_count": 65,
+              "line_count": 0,
+              "frame_count": 1,
+              "image_count": 2,
+              "table_count": 1
+            }
+          ],
+          "right_refs": [
+            {
+              "page_number": 4,
+              "page_size_key": "595.3x841.9r0",
+              "element_count": 69,
+              "text_count": 65,
+              "line_count": 0,
+              "frame_count": 1,
+              "image_count": 2,
+              "table_count": 1
+            }
+          ]
+        },
+        {
+          "signature": "ea7d3ef3347fc389ed9c8e15aec8ff4133823075",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "page_number": 3,
+              "page_size_key": "595.3x841.9r0",
+              "element_count": 49,
+              "text_count": 29,
+              "line_count": 15,
+              "frame_count": 1,
+              "image_count": 3,
+              "table_count": 1
+            }
+          ],
+          "right_refs": [
+            {
+              "page_number": 3,
+              "page_size_key": "595.3x841.9r0",
+              "element_count": 49,
+              "text_count": 29,
+              "line_count": 15,
+              "frame_count": 1,
+              "image_count": 3,
+              "table_count": 1
+            }
+          ]
+        },
+        {
+          "signature": "f23709e1a2565306cc7c000afb168524859be12e",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "page_number": 5,
+              "page_size_key": "595.2x842.0r0",
+              "element_count": 35,
+              "text_count": 32,
+              "line_count": 1,
+              "frame_count": 1,
+              "image_count": 1,
+              "table_count": 0
+            }
+          ],
+          "right_refs": [
+            {
+              "page_number": 5,
+              "page_size_key": "595.2x842.0r0",
+              "element_count": 35,
+              "text_count": 32,
+              "line_count": 1,
+              "frame_count": 1,
+              "image_count": 1,
+              "table_count": 0
+            }
+          ]
+        }
+      ],
+      "left_only_top": [
+        {
+          "signature": "1c7fbccbe3fd1eb5f2d98991577deec07c680dc7",
+          "count": 1,
+          "refs": [
+            {
+              "page_number": 2,
+              "page_size_key": "595.4x842.0r0",
+              "element_count": 27,
+              "text_count": 21,
+              "line_count": 0,
+              "frame_count": 3,
+              "image_count": 2,
+              "table_count": 1
+            }
+          ]
+        },
+        {
+          "signature": "5adf589241a2e7932ef16afac3dae4d2d6ce455a",
+          "count": 1,
+          "refs": [
+            {
+              "page_number": 8,
+              "page_size_key": "1191.0x842.0r270",
+              "element_count": 6010,
+              "text_count": 2,
+              "line_count": 2814,
+              "frame_count": 5,
+              "image_count": 2,
+              "table_count": 1
+            }
+          ]
+        },
+        {
+          "signature": "5f252ed661be6a2b0fae650cc150a9becf73024a",
+          "count": 1,
+          "refs": [
+            {
+              "page_number": 9,
+              "page_size_key": "1191.0x842.0r270",
+              "element_count": 146,
+              "text_count": 2,
+              "line_count": 80,
+              "frame_count": 1,
+              "image_count": 1,
+              "table_count": 0
+            }
+          ]
+        },
+        {
+          "signature": "d340ac0bf8fdcdb03b19ba28f29f8124094f0cd6",
+          "count": 1,
+          "refs": [
+            {
+              "page_number": 1,
+              "page_size_key": "595.4x842.0r0",
+              "element_count": 25,
+              "text_count": 20,
+              "line_count": 0,
+              "frame_count": 3,
+              "image_count": 1,
+              "table_count": 1
+            }
+          ]
+        }
+      ],
+      "right_only_top": [
+        {
+          "signature": "9a4372a1511cb6cebc0c1b498bb8498d88f3808b",
+          "count": 1,
+          "refs": [
+            {
+              "page_number": 2,
+              "page_size_key": "595.4x842.0r0",
+              "element_count": 27,
+              "text_count": 21,
+              "line_count": 0,
+              "frame_count": 3,
+              "image_count": 2,
+              "table_count": 1
+            }
+          ]
+        },
+        {
+          "signature": "9bd62ee61b5c74d7627aa94efd6bfc9d8284f310",
+          "count": 1,
+          "refs": [
+            {
+              "page_number": 8,
+              "page_size_key": "1191.0x842.0r270",
+              "element_count": 6005,
+              "text_count": 2,
+              "line_count": 2846,
+              "frame_count": 6,
+              "image_count": 2,
+              "table_count": 1
+            }
+          ]
+        },
+        {
+          "signature": "dfe409d8df5c598ed56ed8edbc412cca62eb1613",
+          "count": 1,
+          "refs": [
+            {
+              "page_number": 1,
+              "page_size_key": "595.4x842.0r0",
+              "element_count": 24,
+              "text_count": 19,
+              "line_count": 0,
+              "frame_count": 3,
+              "image_count": 1,
+              "table_count": 1
+            }
+          ]
+        }
+      ],
+      "same_page_number_exact_matches": [
+        {
+          "page_number": 3,
+          "signature": "ea7d3ef3347fc389ed9c8e15aec8ff4133823075",
+          "left": {
+            "page_number": 3,
+            "page_size_key": "595.3x841.9r0",
+            "element_count": 49,
+            "text_count": 29,
+            "line_count": 15,
+            "frame_count": 1,
+            "image_count": 3,
+            "table_count": 1
+          },
+          "right": {
+            "page_number": 3,
+            "page_size_key": "595.3x841.9r0",
+            "element_count": 49,
+            "text_count": 29,
+            "line_count": 15,
+            "frame_count": 1,
+            "image_count": 3,
+            "table_count": 1
+          }
+        },
+        {
+          "page_number": 4,
+          "signature": "97483ede1404985afb1243174d5ea78870acced5",
+          "left": {
+            "page_number": 4,
+            "page_size_key": "595.3x841.9r0",
+            "element_count": 69,
+            "text_count": 65,
+            "line_count": 0,
+            "frame_count": 1,
+            "image_count": 2,
+            "table_count": 1
+          },
+          "right": {
+            "page_number": 4,
+            "page_size_key": "595.3x841.9r0",
+            "element_count": 69,
+            "text_count": 65,
+            "line_count": 0,
+            "frame_count": 1,
+            "image_count": 2,
+            "table_count": 1
+          }
+        },
+        {
+          "page_number": 5,
+          "signature": "f23709e1a2565306cc7c000afb168524859be12e",
+          "left": {
+            "page_number": 5,
+            "page_size_key": "595.2x842.0r0",
+            "element_count": 35,
+            "text_count": 32,
+            "line_count": 1,
+            "frame_count": 1,
+            "image_count": 1,
+            "table_count": 0
+          },
+          "right": {
+            "page_number": 5,
+            "page_size_key": "595.2x842.0r0",
+            "element_count": 35,
+            "text_count": 32,
+            "line_count": 1,
+            "frame_count": 1,
+            "image_count": 1,
+            "table_count": 0
+          }
+        },
+        {
+          "page_number": 6,
+          "signature": "22f52e8ba656134735f2a5cbf8094db660e10be9",
+          "left": {
+            "page_number": 6,
+            "page_size_key": "595.2x842.0r0",
+            "element_count": 41,
+            "text_count": 39,
+            "line_count": 0,
+            "frame_count": 1,
+            "image_count": 1,
+            "table_count": 0
+          },
+          "right": {
+            "page_number": 6,
+            "page_size_key": "595.2x842.0r0",
+            "element_count": 41,
+            "text_count": 39,
+            "line_count": 0,
+            "frame_count": 1,
+            "image_count": 1,
+            "table_count": 0
+          }
+        },
+        {
+          "page_number": 7,
+          "signature": "1d6909dc81d3ad71ef4b066f9cf854f698eb3aaa",
+          "left": {
+            "page_number": 7,
+            "page_size_key": "595.2x842.0r0",
+            "element_count": 14,
+            "text_count": 12,
+            "line_count": 0,
+            "frame_count": 1,
+            "image_count": 1,
+            "table_count": 0
+          },
+          "right": {
+            "page_number": 7,
+            "page_size_key": "595.2x842.0r0",
+            "element_count": 14,
+            "text_count": 12,
+            "line_count": 0,
+            "frame_count": 1,
+            "image_count": 1,
+            "table_count": 0
+          }
+        }
+      ],
+      "same_page_number_exact_match_count": 5
+    },
+    "table_layout_signatures": {
+      "jaccard": 0.6667,
+      "shared_signature_count": 3,
+      "left_unique_signature_count": 4,
+      "right_unique_signature_count": 4,
+      "left_only_signature_count": 1,
+      "right_only_signature_count": 1,
+      "shared_top": [
+        {
+          "signature": "2b31a4437e93cdfa205f1fd99df15ece0d21de8d",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "left_refs": [
+            {
+              "table_id": "tbl_1_1",
+              "page_number": 1,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            },
+            {
+              "table_id": "tbl_2_1",
+              "page_number": 2,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            }
+          ],
+          "right_refs": [
+            {
+              "table_id": "tbl_1_1",
+              "page_number": 1,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            },
+            {
+              "table_id": "tbl_2_1",
+              "page_number": 2,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            }
+          ]
+        },
+        {
+          "signature": "44462779ede31506fdf1b4d0626e387e4cda8745",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "table_id": "tbl_4_1",
+              "page_number": 4,
+              "row_count": 11,
+              "column_count": 6,
+              "cell_count": 44,
+              "bbox_area": 196500.32,
+              "layout_signature_source": "rows:11|cols:6|cells:44|text:40|lines:21|frames:1|size:497.2x395.2"
+            }
+          ],
+          "right_refs": [
+            {
+              "table_id": "tbl_4_1",
+              "page_number": 4,
+              "row_count": 11,
+              "column_count": 6,
+              "cell_count": 44,
+              "bbox_area": 196500.32,
+              "layout_signature_source": "rows:11|cols:6|cells:44|text:40|lines:21|frames:1|size:497.2x395.2"
+            }
+          ]
+        },
+        {
+          "signature": "5cec60322071b6aedc7276621b270c4bcddb57a3",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "table_id": "tbl_3_1",
+              "page_number": 3,
+              "row_count": 7,
+              "column_count": 3,
+              "cell_count": 21,
+              "bbox_area": 66583.05,
+              "layout_signature_source": "rows:7|cols:3|cells:21|text:11|lines:12|frames:1|size:494.6x134.6"
+            }
+          ],
+          "right_refs": [
+            {
+              "table_id": "tbl_3_1",
+              "page_number": 3,
+              "row_count": 7,
+              "column_count": 3,
+              "cell_count": 21,
+              "bbox_area": 66583.05,
+              "layout_signature_source": "rows:7|cols:3|cells:21|text:11|lines:12|frames:1|size:494.6x134.6"
+            }
+          ]
+        }
+      ],
+      "left_only_top": [
+        {
+          "signature": "0fe3764b9c9c944ad4870ca155558a1efcb35223",
+          "count": 1,
+          "refs": [
+            {
+              "table_id": "tbl_8_1",
+              "page_number": 8,
+              "row_count": 69,
+              "column_count": 11,
+              "cell_count": 55,
+              "bbox_area": 81622.86,
+              "layout_signature_source": "rows:69|cols:11|cells:55|text:2|lines:88|frames:1|size:155.7x524.4"
+            }
+          ]
+        }
+      ],
+      "right_only_top": [
+        {
+          "signature": "fce36174875b06ea4a050e5e734d8ee9ac25848a",
+          "count": 1,
+          "refs": [
+            {
+              "table_id": "tbl_8_1",
+              "page_number": 8,
+              "row_count": 56,
+              "column_count": 14,
+              "cell_count": 55,
+              "bbox_area": 81622.86,
+              "layout_signature_source": "rows:56|cols:14|cells:55|text:2|lines:84|frames:1|size:155.7x524.4"
+            }
+          ]
+        }
+      ]
+    },
+    "table_content_signatures": {
+      "jaccard": 0.6667,
+      "shared_signature_count": 3,
+      "left_unique_signature_count": 4,
+      "right_unique_signature_count": 4,
+      "left_only_signature_count": 1,
+      "right_only_signature_count": 1,
+      "shared_top": [
+        {
+          "signature": "2b6346809c816faa519fa0b65122f5420979d0bd",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "left_refs": [
+            {
+              "table_id": "tbl_1_1",
+              "page_number": 1,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            },
+            {
+              "table_id": "tbl_2_1",
+              "page_number": 2,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            }
+          ],
+          "right_refs": [
+            {
+              "table_id": "tbl_1_1",
+              "page_number": 1,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            },
+            {
+              "table_id": "tbl_2_1",
+              "page_number": 2,
+              "row_count": 2,
+              "column_count": 3,
+              "cell_count": 2,
+              "bbox_area": 9296.78,
+              "layout_signature_source": "rows:2|cols:3|cells:2|text:2|lines:7|frames:0|size:336.8x27.6"
+            }
+          ]
+        },
+        {
+          "signature": "5adf10756609caf15c11c208e512238c5505102b",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "table_id": "tbl_4_1",
+              "page_number": 4,
+              "row_count": 11,
+              "column_count": 6,
+              "cell_count": 44,
+              "bbox_area": 196500.32,
+              "layout_signature_source": "rows:11|cols:6|cells:44|text:40|lines:21|frames:1|size:497.2x395.2"
+            }
+          ],
+          "right_refs": [
+            {
+              "table_id": "tbl_4_1",
+              "page_number": 4,
+              "row_count": 11,
+              "column_count": 6,
+              "cell_count": 44,
+              "bbox_area": 196500.32,
+              "layout_signature_source": "rows:11|cols:6|cells:44|text:40|lines:21|frames:1|size:497.2x395.2"
+            }
+          ]
+        },
+        {
+          "signature": "7e333200c9530edf71b361e7b024b4b1306332a6",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "left_refs": [
+            {
+              "table_id": "tbl_3_1",
+              "page_number": 3,
+              "row_count": 7,
+              "column_count": 3,
+              "cell_count": 21,
+              "bbox_area": 66583.05,
+              "layout_signature_source": "rows:7|cols:3|cells:21|text:11|lines:12|frames:1|size:494.6x134.6"
+            }
+          ],
+          "right_refs": [
+            {
+              "table_id": "tbl_3_1",
+              "page_number": 3,
+              "row_count": 7,
+              "column_count": 3,
+              "cell_count": 21,
+              "bbox_area": 66583.05,
+              "layout_signature_source": "rows:7|cols:3|cells:21|text:11|lines:12|frames:1|size:494.6x134.6"
+            }
+          ]
+        }
+      ],
+      "left_only_top": [
+        {
+          "signature": "f74760a5c818b665bb18c0cc75299abbcd9880ed",
+          "count": 1,
+          "refs": [
+            {
+              "table_id": "tbl_8_1",
+              "page_number": 8,
+              "row_count": 69,
+              "column_count": 11,
+              "cell_count": 55,
+              "bbox_area": 81622.86,
+              "layout_signature_source": "rows:69|cols:11|cells:55|text:2|lines:88|frames:1|size:155.7x524.4"
+            }
+          ]
+        }
+      ],
+      "right_only_top": [
+        {
+          "signature": "798351d010bbd72552e5c8481fdda2fe88610732",
+          "count": 1,
+          "refs": [
+            {
+              "table_id": "tbl_8_1",
+              "page_number": 8,
+              "row_count": 56,
+              "column_count": 14,
+              "cell_count": 55,
+              "bbox_area": 81622.86,
+              "layout_signature_source": "rows:56|cols:14|cells:55|text:2|lines:84|frames:1|size:155.7x524.4"
+            }
+          ]
+        }
+      ]
+    },
+    "exact_text_segments": {
+      "left_comparable_segment_count": 135,
+      "right_comparable_segment_count": 133,
+      "left_unique_segment_count": 117,
+      "right_unique_segment_count": 115,
+      "shared_unique_segment_count": 111,
+      "shared_multiset_count": 129,
+      "exact_text_segment_jaccard": 0.9281,
+      "shared_top": [
+        {
+          "text_sha1": "772d958279a9e6da851ef4a6f46aa4594682cbd0",
+          "left_count": 4,
+          "right_count": 4,
+          "shared_count": 4,
+          "char_count": 39
+        },
+        {
+          "text_sha1": "b3dfab827ebc8aa3c875681a2d597ceaadc7c01f",
+          "left_count": 3,
+          "right_count": 3,
+          "shared_count": 3,
+          "char_count": 34
+        },
+        {
+          "text_sha1": "b07a0b476bfb4814df919f89d1a25048ea327880",
+          "left_count": 3,
+          "right_count": 3,
+          "shared_count": 3,
+          "char_count": 15
+        },
+        {
+          "text_sha1": "b6189fe7367eac3ebeb9b293da66b4d3bb8fbb8f",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 100
+        },
+        {
+          "text_sha1": "989cfa73416763d34e5d3c5c1b4e422085aee7e2",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 71
+        },
+        {
+          "text_sha1": "5b0d44f7ce9f665da8d90bad7c2f4d09b003472d",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 63
+        },
+        {
+          "text_sha1": "e697c289a5ce4f29ce9e1450a7314987bb7e2bfc",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 54
+        },
+        {
+          "text_sha1": "bfce30a33528b22fac834b9bf586029476e6cc8b",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 40
+        },
+        {
+          "text_sha1": "60dbe5e418e56d4c033d9944c92910c6e84412af",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 39
+        },
+        {
+          "text_sha1": "a8c092c52c7880bbfdaa6d559aeeb82cb0973bef",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 38
+        },
+        {
+          "text_sha1": "a0da9fec29e0cc3913c80fa963feac9a573741fa",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 29
+        },
+        {
+          "text_sha1": "b1e3c7308c6c1a856ea807d553640aa41740dc5f",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 23
+        },
+        {
+          "text_sha1": "08acf79a34817c8f65a01a5f07e1767070e27bbf",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 22
+        },
+        {
+          "text_sha1": "b98db7d6ed2a4e9dc1ac1495e902bdb5373c2b26",
+          "left_count": 2,
+          "right_count": 2,
+          "shared_count": 2,
+          "char_count": 15
+        },
+        {
+          "text_sha1": "040f8421069cfbe5bc5b970d90885bffd3eb83c8",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 85
+        },
+        {
+          "text_sha1": "20a7ab7c8ef9005e3863a62474899eb1ac8393e8",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 85
+        },
+        {
+          "text_sha1": "93d957270715bd66a7819ee30cf19282e829d62a",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 85
+        },
+        {
+          "text_sha1": "3728fc959193c42fc8a194488c24cf72e4ce733c",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 84
+        },
+        {
+          "text_sha1": "5ed23a7c1dbc102f95dec1ec8e8390c3108b32d3",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 84
+        },
+        {
+          "text_sha1": "de76346f49e079d17bd0f267d0821a5be945842b",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 84
+        },
+        {
+          "text_sha1": "6060ed3b51d69cd01033c7ee697755813983e783",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 83
+        },
+        {
+          "text_sha1": "ef78c9c63c7a5ecc8bc6361f33183b3191f3d570",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 83
+        },
+        {
+          "text_sha1": "82d442f55cd15350db9f9178fb4dc3fa0e6410c5",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 82
+        },
+        {
+          "text_sha1": "2a6eaf16f3c6b0a374100d61c72455ec060bbda4",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 81
+        },
+        {
+          "text_sha1": "2e534206be304be495d91072579707ee17cbdf49",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 81
+        },
+        {
+          "text_sha1": "97fdd7bcb1d9f1bb36b6af77169f50cb7a6ace18",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 80
+        },
+        {
+          "text_sha1": "b230e111ecf4c3ffb4848101d6fca085e02fd98d",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 80
+        },
+        {
+          "text_sha1": "dc4f0349eabf53898afa8bc93a560ac7ef05194c",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 80
+        },
+        {
+          "text_sha1": "fb0f35429ff04ac65e6b7f4c580eac314bc47009",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 80
+        },
+        {
+          "text_sha1": "ca232fd5df9e0349db44229fec9bfd5508dd1846",
+          "left_count": 1,
+          "right_count": 1,
+          "shared_count": 1,
+          "char_count": 79
+        }
+      ]
+    }
+  },
+  "interpretation_v0": {
+    "scope": "Exploratory same-section comparison. Scores and weights are temporary and intended to expose useful signals.",
+    "important_caution": "Exact page layout matches alone are not proof of document reuse; they must be interpreted together with table, text, graphic, and domain-specific signals."
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": "comparison_result_v0",
+  "generated_at": "2026-06-14T14:24:16+00:00",
+  "pair_id": "АР__1724_25__1725_25",
+  "comparison_mode": "same_section_pair_v0",
+  "section_code": "АР",
+  "left": {
+    "object_id": "1724_25",
+    "bundle_id": "doc_984f5a08",
+    "crc32": "984F5A08",
+    "file_name": "Раздел ПД N 3  АР_ул. Симферопольская, д. 11.pdf"
+  },
+  "right": {
+    "object_id": "1725_25",
+    "bundle_id": "doc_96e96f2d",
+    "crc32": "96E96F2D",
+    "file_name": "Раздел ПД N 3  АР_ул. Симферопольская, д. 11.pdf"
+  },
+  "similarity_summary": {
+    "weighted_similarity_v0": 0.7999,
+    "feature_cosine_v0": 0.9999,
+    "page_signature_jaccard": 0.4167,
+    "table_layout_jaccard": 0.6667,
+    "table_content_jaccard": 0.6667,
+    "coverage": {
+      "numeric_features": 18,
+      "axes": [
+        "feature_vector",
+        "page_signature",
+        "table_layout",
+        "table_content"
+      ]
+    }
+  },
+  "shared_signatures": {
+    "pages_top": [
+      {
+        "signature": "1d6909dc81d3ad71ef4b066f9cf854f698eb3aaa",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "22f52e8ba656134735f2a5cbf8094db660e10be9",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "97483ede1404985afb1243174d5ea78870acced5",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "ea7d3ef3347fc389ed9c8e15aec8ff4133823075",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "f23709e1a2565306cc7c000afb168524859be12e",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_layouts_top": [
+      {
+        "signature": "2b31a4437e93cdfa205f1fd99df15ece0d21de8d",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "44462779ede31506fdf1b4d0626e387e4cda8745",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "5cec60322071b6aedc7276621b270c4bcddb57a3",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_content_top": [
+      {
+        "signature": "2b6346809c816faa519fa0b65122f5420979d0bd",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "5adf10756609caf15c11c208e512238c5505102b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "7e333200c9530edf71b361e7b024b4b1306332a6",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ]
+  },
+  "v0_note": "This result is an exploratory measurement, not a final expert conclusion. Weights and feature sets are intentionally simple."
+}

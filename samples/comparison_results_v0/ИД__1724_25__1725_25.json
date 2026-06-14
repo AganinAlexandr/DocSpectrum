@@ -1,0 +1,224 @@
+{
+  "schema_version": "comparison_result_v0",
+  "generated_at": "2026-06-14T14:24:16+00:00",
+  "pair_id": "ИД__1724_25__1725_25",
+  "comparison_mode": "same_section_pair_v0",
+  "section_code": "ИД",
+  "left": {
+    "object_id": "1724_25",
+    "bundle_id": "doc_801fee11",
+    "crc32": "801FEE11",
+    "file_name": "Раздел ПД N 13 ИД_ул. Симферопольская, д. 11.pdf"
+  },
+  "right": {
+    "object_id": "1725_25",
+    "bundle_id": "doc_df6a5246",
+    "crc32": "DF6A5246",
+    "file_name": "Раздел ПД N 13 ИД_ул. Симферопольская, д. 11.pdf"
+  },
+  "similarity_summary": {
+    "weighted_similarity_v0": 0.9333,
+    "feature_cosine_v0": 1.0,
+    "page_signature_jaccard": 0.6667,
+    "table_layout_jaccard": 1.0,
+    "table_content_jaccard": 1.0,
+    "coverage": {
+      "numeric_features": 18,
+      "axes": [
+        "feature_vector",
+        "page_signature",
+        "table_layout",
+        "table_content"
+      ]
+    }
+  },
+  "shared_signatures": {
+    "pages_top": [
+      {
+        "signature": "1d36ae478e03ccc99fd530c51f16d1bb54777ba1",
+        "left_count": 11,
+        "right_count": 11,
+        "shared_count": 11
+      },
+      {
+        "signature": "017eb10a3f9561e31c66dafe42586c8230200a80",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "0b1003c1d8f11a16e4bc396e97c57993dfbf6b23",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "123f8c01e2cc26b7b7baaacb4c9cd94e8f00b946",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "15bb535a0c445adca7c2acdfedf8f8adf5e3b361",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "1f661a1526a19ea29c8734d76291f0dbd94b73a1",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "3c60439b875ec77eb23e520745bf913894561bd6",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "3db5371a22aad835d331a82f7b1eaee5ee16cf9d",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "49577ba8528249b185b514af1cabeedbd4762a8c",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4ebf38abcfd920c0cb23c7c6d3e59830ac305fdb",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_layouts_top": [
+      {
+        "signature": "2b31a4437e93cdfa205f1fd99df15ece0d21de8d",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "009b8ef8a1d2fd821628cda362f8f189f7297530",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "048fecd3fdca043ffe522ffb99a8a9cc67cdd28a",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "07d26e933452b15874f59953250afdcd9d793d4e",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "101f16856a2c3fa995b0eac0c95f0e0cda2db812",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "298dafcaf50ad1d9c4825447093d2d253119a5c0",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "425c9dfb01633d3e35cf0899aca4c1b71ce6ddf5",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "44462779ede31506fdf1b4d0626e387e4cda8745",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4ba2fa6d13159e040ce46f2d93a18fd717417725",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4caa29c4e43568d4fa40784f4a6f0cf058b32ab3",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_content_top": [
+      {
+        "signature": "2b6346809c816faa519fa0b65122f5420979d0bd",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "174cfbe3e5aafb6309dbed1e587cd1ac4091f010",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "275a7b19b3e7e9aefe0992e48d01bdc771a02dd2",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4bc72d0bd8c311496dbef4f58607103e326388dd",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4fe6d1d360f7e815da9318089a2e75b3df642de8",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "590eb5f0e06c6702dbdd2046215e4c3d980150a0",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "5adf10756609caf15c11c208e512238c5505102b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "67e6cc5fcb7dd5ea82d26ecd0d297796bd07cc1d",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "68bbfd7e49d02533c4c18ba76a4643f93b26d74b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "7d3594f523f0010d8dfbefb687b8b6db150987b1",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ]
+  },
+  "v0_note": "This result is an exploratory measurement, not a final expert conclusion. Weights and feature sets are intentionally simple."
+}

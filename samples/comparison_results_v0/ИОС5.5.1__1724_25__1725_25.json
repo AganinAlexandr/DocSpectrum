@@ -1,0 +1,170 @@
+{
+  "schema_version": "comparison_result_v0",
+  "generated_at": "2026-06-14T14:24:16+00:00",
+  "pair_id": "ИОС5.5.1__1724_25__1725_25",
+  "comparison_mode": "same_section_pair_v0",
+  "section_code": "ИОС5.5.1",
+  "left": {
+    "object_id": "1724_25",
+    "bundle_id": "doc_48ee9de4",
+    "crc32": "48EE9DE4",
+    "file_name": "Раздел ПД№5 ИОС5.5.1 ул.Симферопольская,д.11 ГВС.pdf"
+  },
+  "right": {
+    "object_id": "1725_25",
+    "bundle_id": "doc_3555e5a4",
+    "crc32": "3555E5A4",
+    "file_name": "Раздел ПД№5 ИОС5.5.1 ул.Симферопольская,д.11 ОТ.pdf"
+  },
+  "similarity_summary": {
+    "weighted_similarity_v0": 0.6382,
+    "feature_cosine_v0": 1.0,
+    "page_signature_jaccard": 0.1515,
+    "table_layout_jaccard": 0.2195,
+    "table_content_jaccard": 0.25,
+    "coverage": {
+      "numeric_features": 18,
+      "axes": [
+        "feature_vector",
+        "page_signature",
+        "table_layout",
+        "table_content"
+      ]
+    }
+  },
+  "shared_signatures": {
+    "pages_top": [
+      {
+        "signature": "25cea667b537b8d675fdbefaf463d3c225843283",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4109d38708e9895ca34b87bf29663b2d56560182",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "6f053150beed2539c7d3f5a88b09e1ba7656a566",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "7044b3f7c0ea2dd59367d1a6f22fda8a5b41bd27",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "921033b211cdcc06d504a6dda9272573d5c74a12",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_layouts_top": [
+      {
+        "signature": "2b31a4437e93cdfa205f1fd99df15ece0d21de8d",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "3e6bd9c82949a9adf61bc29397b480503d92fd9e",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "148440e540dbacf46479a99f8d017967f0b4d75b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "26d16a4b3291359d19a9eaeff5f3a70c4be82c20",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "44462779ede31506fdf1b4d0626e387e4cda8745",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "4d409b9ec58eb41827652ad898d0ef3867926371",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "fa4efda0281ec92678a9097f957a3fb0b4cfb7c8",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ],
+    "table_content_top": [
+      {
+        "signature": "2b6346809c816faa519fa0b65122f5420979d0bd",
+        "left_count": 2,
+        "right_count": 2,
+        "shared_count": 2
+      },
+      {
+        "signature": "018c806b840994505149ceaefccaf47cd9f2e9aa",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "0dc5c4c33142008a887f364a5ef5b2ec3254851b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "38c13d3ec61a752f692dbec84813f6a9a5c7c90d",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "5adf10756609caf15c11c208e512238c5505102b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "5b92a90924916861d3ceafaf2012c641e40cbb9b",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "5e04dd2db03a2c5a1264202dfda096aa57ce063a",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "f8b50922d7d3907364845eebd34c86bfbb3c2939",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      },
+      {
+        "signature": "fafd5e2999f77392d408a4957f86016f21977f4f",
+        "left_count": 1,
+        "right_count": 1,
+        "shared_count": 1
+      }
+    ]
+  },
+  "v0_note": "This result is an exploratory measurement, not a final expert conclusion. Weights and feature sets are intentionally simple."
+}

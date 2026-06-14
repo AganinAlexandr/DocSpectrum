@@ -1,0 +1,9 @@
+pair_id,section_code,left_object_id,left_bundle_id,left_crc32,right_object_id,right_bundle_id,right_crc32,weighted_similarity_v0,feature_cosine_v0,page_signature_jaccard,table_layout_jaccard,table_content_jaccard,result_path
+АР__1724_25__1725_25,АР,1724_25,doc_984f5a08,984F5A08,1725_25,doc_96e96f2d,96E96F2D,0.7999,0.9999,0.4167,0.6667,0.6667,E:\repos\DocSpectrum\samples\comparison_results_v0\АР__1724_25__1725_25.json
+ИД__1724_25__1725_25,ИД,1724_25,doc_801fee11,801FEE11,1725_25,doc_df6a5246,DF6A5246,0.9333,1.0,0.6667,1.0,1.0,E:\repos\DocSpectrum\samples\comparison_results_v0\ИД__1724_25__1725_25.json
+ИОС5.1__1724_25__1725_25,ИОС5.1,1724_25,doc_5efb363f,5EFB363F,1725_25,doc_726dfa3d,726DFA3D,0.6301,0.9999,0.1053,0.2222,0.2571,E:\repos\DocSpectrum\samples\comparison_results_v0\ИОС5.1__1724_25__1725_25.json
+ИОС5.4.1__1724_25__1725_25,ИОС5.4.1,1724_25,doc_c8e972bf,C8E972BF,1725_25,doc_10be5f2b,10BE5F2B,0.6637,0.9998,0.2083,0.2188,0.3929,E:\repos\DocSpectrum\samples\comparison_results_v0\ИОС5.4.1__1724_25__1725_25.json
+ИОС5.5.1__1724_25__1725_25,ИОС5.5.1,1724_25,doc_48ee9de4,48EE9DE4,1725_25,doc_3555e5a4,3555E5A4,0.6382,1.0,0.1515,0.2195,0.25,E:\repos\DocSpectrum\samples\comparison_results_v0\ИОС5.5.1__1724_25__1725_25.json
+КР__1724_25__1725_25,КР,1724_25,doc_a624e984,A624E984,1725_25,doc_93cc45b2,93CC45B2,0.8452,0.9999,0.5833,0.7143,0.7143,E:\repos\DocSpectrum\samples\comparison_results_v0\КР__1724_25__1725_25.json
+ПОКР__1724_25__1725_25,ПОКР,1724_25,doc_34536dc1,34536DC1,1725_25,doc_32fcaa56,32FCAA56,0.8322,1.0,0.3611,1.0,0.6,E:\repos\DocSpectrum\samples\comparison_results_v0\ПОКР__1724_25__1725_25.json
+СМ__1724_25__1725_25,СМ,1724_25,doc_b44ce08b,B44CE08B,1725_25,doc_c985f0bc,C985F0BC,0.7452,0.9991,0.0441,0.8462,0.6,E:\repos\DocSpectrum\samples\comparison_results_v0\СМ__1724_25__1725_25.json

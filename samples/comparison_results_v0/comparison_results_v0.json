@@ -1,0 +1,21 @@
+{
+  "schema_version": "comparison_results_v0_index",
+  "generated_at": "2026-06-14T14:24:16+00:00",
+  "base_dir": "E:\\repos\\DocSpectrum\\samples\\element_base_v0",
+  "output_dir": "E:\\repos\\DocSpectrum\\samples\\comparison_results_v0",
+  "pair_count": 8,
+  "sections": [
+    "АР",
+    "ИД",
+    "ИОС5.1",
+    "ИОС5.4.1",
+    "ИОС5.5.1",
+    "КР",
+    "ПОКР",
+    "СМ"
+  ],
+  "files": {
+    "comparison_results": "comparison_results_v0.csv",
+    "pair_json": "*.json"
+  }
+}
