@@ -3,6 +3,7 @@ let
     Typed = Table.TransformColumnTypes(
         Source,
         {
+            {"entity_kind_status", type text},
             {"occurrence_count", Int64.Type},
             {"unique_entity_count", Int64.Type},
             {"typical_occurrences", Int64.Type},

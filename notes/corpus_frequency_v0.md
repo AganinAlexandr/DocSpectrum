@@ -42,12 +42,20 @@ Frequency buckets use same-section document frequency:
 
 `shared_rare` rows include `section_documents` and `section_objects`, which makes them a first bridge toward future `fragment_matches` / `source_matches`.
 
+`section_typicality_v0.csv` is rectangular by design: it has one row for each `(document, entity_kind)`.
+The `entity_kind_status` column distinguishes:
+
+- `measured`: the document contains at least one entity of this kind;
+- `not_present`: the document has no entities of this kind, so share fields are structural zeroes, not measured-zero evidence.
+
 ## Expanded Corpus Run
 
 Corpus:
 
 - documents: `143`
 - sections: `9`
+- section_typicality rows: `858`
+- not_present rows: `0`
 - entity rows: `49000`
 - `page_signature`: `1942`
 - `table_cell_text`: `5093`
