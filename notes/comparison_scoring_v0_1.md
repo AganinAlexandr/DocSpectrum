@@ -28,9 +28,10 @@ It uses exact structural signature axes:
 Weights are rescaled over applicable scoring axes. Axis statuses are written explicitly:
 
 - `measured`
-- `measured_zero`
+- `measured_no_overlap`
 - `not_applicable`
-- `missing`
+
+`measured_no_overlap` means that both sides have signature data, but exact-signature Jaccard is `0`. This status is intentionally separate from numeric `measured_zero`, which remains available for feature diagnostics where both numeric values are really measured as zero.
 
 ## Expanded Corpus Run
 
@@ -52,7 +53,7 @@ Signature similarity v0.1 by section:
 Axis status counts:
 
 - `measured`: `3309`
-- `measured_zero`: `261`
+- `measured_no_overlap`: `261`
 
 ## Interpretation
 

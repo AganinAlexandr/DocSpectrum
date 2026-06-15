@@ -5,7 +5,7 @@ Compared with compare_pairs_v0.py:
 
 - raw feature cosine is diagnostic only and is not part of scoring;
 - scoring uses exact signature axes only;
-- axis statuses distinguish measured zero, missing, and not applicable axes.
+- axis statuses distinguish no-overlap, real zero, missing, and not applicable axes.
 """
 
 from __future__ import annotations
@@ -118,10 +118,8 @@ def multiset_jaccard(left: Counter[str], right: Counter[str]) -> tuple[float, st
     keys = set(left) | set(right)
     intersection = sum(min(left[key], right[key]) for key in keys)
     union = sum(max(left[key], right[key]) for key in keys)
-    if not union:
-        return 0.0, "missing"
     value = intersection / union
-    return value, "measured_zero" if value == 0.0 else "measured"
+    return value, "measured_no_overlap" if value == 0.0 else "measured"
 
 
 def counter_for(
@@ -158,7 +156,7 @@ def weighted_scoring_score(axis_values: dict[str, dict[str, Any]]) -> tuple[floa
     weighted_sum = 0.0
     applicable_weight = 0.0
     for axis_name, axis in axis_values.items():
-        if axis["status"] not in {"measured", "measured_zero"}:
+        if axis["status"] not in {"measured", "measured_no_overlap"}:
             continue
         weight = SCORING_AXIS_WEIGHTS[axis_name]
         applicable_weight += weight
