@@ -7,7 +7,11 @@ let
             {"spearman", type number},
             {"abs_spearman", type number},
             {"p_value_approx", type number},
-            {"bh_q_value", type number}
+            {"bh_q_value", type number},
+            {"partial_n", Int64.Type},
+            {"partial_spearman_page_count", type number},
+            {"abs_partial_spearman_page_count", type number},
+            {"partial_delta_abs", type number}
         }
     )
 in

@@ -72,6 +72,8 @@ ENTITY_METRICS = [
     "entity_original_occurrences",
 ]
 
+PAGE_CONTROL_METRIC = "page_count"
+
 
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -176,6 +178,29 @@ def spearman(left: list[float], right: list[float]) -> float | None:
     return pearson(rankdata(left), rankdata(right))
 
 
+def residuals(values: list[float], control: list[float]) -> list[float] | None:
+    if len(values) < 3 or len(values) != len(control):
+        return None
+    control_mean = statistics.mean(control)
+    value_mean = statistics.mean(values)
+    denominator = sum((item - control_mean) ** 2 for item in control)
+    if not denominator:
+        return None
+    slope = sum((x - control_mean) * (y - value_mean) for x, y in zip(control, values)) / denominator
+    intercept = value_mean - slope * control_mean
+    return [y - (intercept + slope * x) for x, y in zip(control, values)]
+
+
+def partial_spearman(left: list[float], right: list[float], control: list[float]) -> float | None:
+    if len(left) < 4 or len(left) != len(right) or len(left) != len(control):
+        return None
+    left_residuals = residuals(rankdata(left), rankdata(control))
+    right_residuals = residuals(rankdata(right), rankdata(control))
+    if left_residuals is None or right_residuals is None:
+        return None
+    return pearson(left_residuals, right_residuals)
+
+
 def load_objects(path: Path) -> dict[str, dict[str, str]]:
     return {row["object_id"]: row for row in read_csv(path)}
 
@@ -277,18 +302,23 @@ def correlation_rows(joined_rows: list[dict[str, Any]], subset_label: str, fdr_a
         for tei_feature in TEI_FEATURES:
             for metric_name in metric_names:
                 pairs = [
-                    (tei_value, metric_value)
+                    (tei_value, metric_value, page_count)
                     for row in section_rows
                     if (tei_value := safe_float(row.get(tei_feature))) is not None
                     and (metric_value := safe_float(row.get(metric_name))) is not None
+                    and (page_count := safe_float(row.get(PAGE_CONTROL_METRIC))) is not None
                 ]
                 if len(pairs) < 4:
                     continue
                 tei_values = [item[0] for item in pairs]
                 metric_values = [item[1] for item in pairs]
+                page_counts = [item[2] for item in pairs]
                 corr = spearman(tei_values, metric_values)
                 if corr is None:
                     continue
+                partial_corr = None
+                if metric_name != PAGE_CONTROL_METRIC:
+                    partial_corr = partial_spearman(tei_values, metric_values, page_counts)
                 rows.append(
                     {
                         "subset_label": subset_label,
@@ -303,6 +333,18 @@ def correlation_rows(joined_rows: list[dict[str, Any]], subset_label: str, fdr_a
                         "abs_spearman": round_float(abs(corr)),
                         "direction": "positive" if corr > 0 else "negative" if corr < 0 else "zero",
                         "p_value_approx": round_float(p_value_normal_approx(corr, len(pairs)), 6),
+                        "page_control_metric": PAGE_CONTROL_METRIC,
+                        "partial_n": len(pairs) if partial_corr is not None else "",
+                        "partial_spearman_page_count": round_float(partial_corr),
+                        "abs_partial_spearman_page_count": round_float(abs(partial_corr)) if partial_corr is not None else "",
+                        "partial_direction": (
+                            "positive" if partial_corr and partial_corr > 0
+                            else "negative" if partial_corr and partial_corr < 0
+                            else "zero" if partial_corr == 0
+                            else ""
+                        ),
+                        "partial_delta_abs": round_float(abs(corr) - abs(partial_corr)) if partial_corr is not None else "",
+                        "page_control_status": "controlled" if partial_corr is not None else "not_applicable",
                     }
                 )
     add_bh_q_values(rows, fdr_alpha)
@@ -362,10 +404,69 @@ def replication_rows(
                 "all35_spearman": all35.get("spearman", ""),
                 "all35_abs_spearman": all35.get("abs_spearman", ""),
                 "all35_bh_q_value": all35.get("bh_q_value", ""),
+                "all35_partial_spearman_page_count": all35.get("partial_spearman_page_count", ""),
+                "all35_abs_partial_spearman_page_count": all35.get("abs_partial_spearman_page_count", ""),
+                "all35_page_control_status": all35.get("page_control_status", ""),
             }
         )
     output.sort(key=lambda row: (row["replication_status"], -metric_float(row["first18_abs_spearman"]), row["section_code"]))
     return output
+
+
+def axis_b_shortlist_rows(
+    replication: list[dict[str, Any]],
+    all_rows: list[dict[str, Any]],
+    fdr_alpha: float,
+    partial_threshold: float,
+) -> list[dict[str, Any]]:
+    all_index = index_correlations(all_rows)
+    fdr_field = f"fdr_significant_{str(fdr_alpha).replace('.', '_')}"
+    rows = []
+    for replicated in replication:
+        if replicated["replication_status"] != "persisted":
+            continue
+        key = (replicated["section_code"], replicated["tei_feature"], replicated["metric_name"])
+        all35 = all_index.get(key, {})
+        if str(all35.get(fdr_field, "")).lower() != "true":
+            continue
+        partial_abs = safe_float(all35.get("abs_partial_spearman_page_count"))
+        if partial_abs is None:
+            page_control_class = "not_controlled"
+        elif partial_abs >= partial_threshold:
+            page_control_class = "survives_page_control"
+        else:
+            page_control_class = "page_size_confounded"
+        rows.append(
+            {
+                "section_code": replicated["section_code"],
+                "tei_feature": replicated["tei_feature"],
+                "metric_name": replicated["metric_name"],
+                "metric_family": replicated["metric_family"],
+                "shortlist_basis": f"persisted_and_all_fdr_q_le_{fdr_alpha}",
+                "page_control_class": page_control_class,
+                "partial_threshold_abs_spearman": partial_threshold,
+                "all35_n": all35.get("n", ""),
+                "all35_spearman": all35.get("spearman", ""),
+                "all35_abs_spearman": all35.get("abs_spearman", ""),
+                "all35_bh_q_value": all35.get("bh_q_value", ""),
+                "all35_partial_n": all35.get("partial_n", ""),
+                "all35_partial_spearman_page_count": all35.get("partial_spearman_page_count", ""),
+                "all35_abs_partial_spearman_page_count": all35.get("abs_partial_spearman_page_count", ""),
+                "partial_delta_abs": all35.get("partial_delta_abs", ""),
+                "page_control_status": all35.get("page_control_status", ""),
+                "first18_abs_spearman": replicated.get("first18_abs_spearman", ""),
+                "added17_abs_spearman": replicated.get("added17_abs_spearman", ""),
+            }
+        )
+    rows.sort(
+        key=lambda row: (
+            row["page_control_class"],
+            -metric_float(row["all35_abs_partial_spearman_page_count"]),
+            -metric_float(row["all35_abs_spearman"]),
+            row["section_code"],
+        )
+    )
+    return rows
 
 
 def bucket_summary_rows(joined_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -423,6 +524,7 @@ def build(
     first_subset_documents_index_path: Path | None = None,
     replication_threshold: float = 0.45,
     fdr_alpha: float = 0.10,
+    partial_threshold: float = 0.45,
 ) -> None:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     objects = load_objects(object_registry_path)
@@ -447,6 +549,7 @@ def build(
         corr_rows.extend(first_corr_rows)
         corr_rows.extend(added_corr_rows)
         replication = replication_rows(first_corr_rows, added_corr_rows, all_corr_rows, replication_threshold)
+    shortlist = axis_b_shortlist_rows(replication, all_corr_rows, fdr_alpha, partial_threshold) if replication else []
     bucket_rows = bucket_summary_rows(joined_rows)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -468,6 +571,13 @@ def build(
             "p_value_approx",
             "bh_q_value",
             f"fdr_significant_{str(fdr_alpha).replace('.', '_')}",
+            "page_control_metric",
+            "partial_n",
+            "partial_spearman_page_count",
+            "abs_partial_spearman_page_count",
+            "partial_direction",
+            "partial_delta_abs",
+            "page_control_status",
         ],
     )
     if replication:
@@ -493,6 +603,34 @@ def build(
                 "all35_spearman",
                 "all35_abs_spearman",
                 "all35_bh_q_value",
+                "all35_partial_spearman_page_count",
+                "all35_abs_partial_spearman_page_count",
+                "all35_page_control_status",
+            ],
+        )
+    if shortlist:
+        write_csv(
+            output_dir / "axis_b_shortlist_page_control_v0.csv",
+            shortlist,
+            [
+                "section_code",
+                "tei_feature",
+                "metric_name",
+                "metric_family",
+                "shortlist_basis",
+                "page_control_class",
+                "partial_threshold_abs_spearman",
+                "all35_n",
+                "all35_spearman",
+                "all35_abs_spearman",
+                "all35_bh_q_value",
+                "all35_partial_n",
+                "all35_partial_spearman_page_count",
+                "all35_abs_partial_spearman_page_count",
+                "partial_delta_abs",
+                "page_control_status",
+                "first18_abs_spearman",
+                "added17_abs_spearman",
             ],
         )
     bucket_fields = list(bucket_rows[0].keys()) if bucket_rows else []
@@ -513,8 +651,11 @@ def build(
         "first18_correlation_rows": len(first_corr_rows),
         "added17_correlation_rows": len(added_corr_rows),
         "replication_rows": len(replication),
+        "shortlist_page_control_rows": len(shortlist),
         "replication_threshold_abs_spearman": replication_threshold,
         "fdr_alpha": fdr_alpha,
+        "partial_threshold_abs_spearman": partial_threshold,
+        "page_control_metric": PAGE_CONTROL_METRIC,
         "bucket_summary_rows": len(bucket_rows),
         "tei_features": TEI_FEATURES,
         "document_count_metrics": DOCUMENT_COUNT_METRICS,
@@ -530,6 +671,7 @@ def build(
             "document_metrics": "axis_b_document_metrics_v0.csv",
             "correlations": "axis_b_correlations_v0.csv",
             "replication": "axis_b_replication_v0.csv" if replication else "",
+            "shortlist_page_control": "axis_b_shortlist_page_control_v0.csv" if shortlist else "",
             "tei_bucket_summary": "axis_b_tei_bucket_summary_v0.csv",
         },
     }
@@ -555,6 +697,7 @@ Key policy:
 - TEI features are not used in core similarity scoring.
 - Rank correlations are used because engineering components follow stepped nominal sizes.
 - Document size controls are exposed through page count and per-page ratios.
+- Partial Spearman columns control metric rank relation by `page_count`.
 - If `first_subset_documents_index_path` is provided, correlations are emitted for
   `all`, `first18`, and `added17`, plus disjoint replication statuses.
 """
@@ -600,6 +743,12 @@ def main() -> None:
         default=0.10,
         help="Benjamini-Hochberg alpha used for the FDR significance flag.",
     )
+    parser.add_argument(
+        "--partial-threshold",
+        type=float,
+        default=0.45,
+        help="Absolute partial Spearman threshold for the page-control shortlist class.",
+    )
     args = parser.parse_args()
     build(
         Path(args.object_registry),
@@ -609,6 +758,7 @@ def main() -> None:
         Path(args.first_subset_documents_index) if args.first_subset_documents_index else None,
         args.replication_threshold,
         args.fdr_alpha,
+        args.partial_threshold,
     )
 
 

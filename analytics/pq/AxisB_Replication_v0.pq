@@ -15,7 +15,9 @@ let
             {"all35_n", Int64.Type},
             {"all35_spearman", type number},
             {"all35_abs_spearman", type number},
-            {"all35_bh_q_value", type number}
+            {"all35_bh_q_value", type number},
+            {"all35_partial_spearman_page_count", type number},
+            {"all35_abs_partial_spearman_page_count", type number}
         }
     )
 in
