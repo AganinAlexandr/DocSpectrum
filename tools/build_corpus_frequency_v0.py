@@ -26,6 +26,9 @@ from text_features import normalize_text, sha1_text, text_tokens, word_shingles
 
 
 TEXT_ENTITY_KINDS = ("text_segment", "text_word_shingle")
+STRUCTURAL_ENTITY_KINDS = ("page_signature", "table_layout_signature", "table_content_signature")
+TABLE_CELL_ENTITY_KINDS = ("table_cell_text",)
+ENTITY_KINDS = TEXT_ENTITY_KINDS + STRUCTURAL_ENTITY_KINDS + TABLE_CELL_ENTITY_KINDS
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -74,9 +77,33 @@ def classify_bucket(section_df: int, section_document_count: int, typical_ratio:
     return "shared_rare"
 
 
+def empty_entity_counters() -> dict[str, Counter[str]]:
+    return {kind: Counter() for kind in ENTITY_KINDS}
+
+
+def load_structural_entities(base_dir: Path) -> dict[tuple[str, str], dict[str, Counter[str]]]:
+    entities_by_doc: dict[tuple[str, str], dict[str, Counter[str]]] = defaultdict(empty_entity_counters)
+
+    for row in read_csv(base_dir / "page_signatures_v0.csv"):
+        signature = row.get("page_signature")
+        if signature:
+            entities_by_doc[(row["object_id"], row["bundle_id"])]["page_signature"][signature] += 1
+
+    for row in read_csv(base_dir / "table_signatures_v0.csv"):
+        doc_key = (row["object_id"], row["bundle_id"])
+        layout_signature = row.get("layout_signature")
+        if layout_signature:
+            entities_by_doc[doc_key]["table_layout_signature"][layout_signature] += 1
+        content_signature = row.get("content_sha1")
+        if content_signature:
+            entities_by_doc[doc_key]["table_content_signature"][content_signature] += 1
+
+    return entities_by_doc
+
+
 def build_document_text_entities(export_root: Path, object_id: str, bundle_id: str) -> dict[str, Counter[str]]:
     path = export_root / object_id / bundle_id / "text_segments.csv"
-    counters = {kind: Counter() for kind in TEXT_ENTITY_KINDS}
+    counters = empty_entity_counters()
     if not path.exists():
         return counters
 
@@ -92,9 +119,40 @@ def build_document_text_entities(export_root: Path, object_id: str, bundle_id: s
     return counters
 
 
+def add_document_table_cell_entities(
+    counters: dict[str, Counter[str]],
+    export_root: Path,
+    object_id: str,
+    bundle_id: str,
+) -> None:
+    path = export_root / object_id / bundle_id / "table_cells.csv"
+    if not path.exists():
+        return
+
+    for row in read_csv(path):
+        normalized = normalize_text(row.get("text_value") or "")
+        if normalized:
+            counters["table_cell_text"][sha1_text(normalized)] += 1
+
+
+def build_document_entities(
+    export_root: Path,
+    object_id: str,
+    bundle_id: str,
+    structural_entities: dict[tuple[str, str], dict[str, Counter[str]]],
+) -> dict[str, Counter[str]]:
+    counters = build_document_text_entities(export_root, object_id, bundle_id)
+    doc_key = (object_id, bundle_id)
+    for entity_kind in STRUCTURAL_ENTITY_KINDS:
+        counters[entity_kind].update(structural_entities.get(doc_key, {}).get(entity_kind, Counter()))
+    add_document_table_cell_entities(counters, export_root, object_id, bundle_id)
+    return counters
+
+
 def build(base_dir: Path, export_root: Path, output_dir: Path, typical_ratio: float) -> None:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     documents = read_csv(base_dir / "documents_index.csv")
+    structural_entities = load_structural_entities(base_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     section_document_counts = Counter(row["section_code"] for row in documents)
@@ -110,7 +168,7 @@ def build(base_dir: Path, export_root: Path, output_dir: Path, typical_ratio: fl
     for row in documents:
         doc_key = (row["object_id"], row["bundle_id"])
         section_code = row["section_code"]
-        entities = build_document_text_entities(export_root, *doc_key)
+        entities = build_document_entities(export_root, *doc_key, structural_entities)
         document_entities[doc_key] = entities
 
         section_library_rows.append(
@@ -323,6 +381,12 @@ Frequency buckets:
 - `shared_rare`: entity appears in more than one same-section document but below the typical threshold;
 - `original`: entity appears in one same-section document;
 - `low_population`: section has fewer than two documents.
+
+Entity kinds:
+
+- text: `{", ".join(TEXT_ENTITY_KINDS)}`
+- structural: `{", ".join(STRUCTURAL_ENTITY_KINDS)}`
+- table cell: `{", ".join(TABLE_CELL_ENTITY_KINDS)}`
 
 Artifacts are hash-only: raw text is not written.
 """
