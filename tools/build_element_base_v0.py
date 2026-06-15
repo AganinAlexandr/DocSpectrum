@@ -401,6 +401,16 @@ def collect_bundle(bundle_dir: Path, export_root: Path, generated_at: str) -> di
     }
 
 
+def canonical_bundle_sort_key(row: dict[str, Any]) -> tuple[int, int, int, str]:
+    parse_status_rank = 0 if str(row.get("parse_status", "")).lower() == "parsed" else 1
+    return (
+        parse_status_rank,
+        safe_int(row.get("broken_encoding_count")),
+        -safe_int(row.get("page_count")),
+        str(row.get("bundle_id", "")),
+    )
+
+
 def build(export_root: Path, output_dir: Path) -> None:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     bundle_dirs = sorted(
@@ -588,8 +598,7 @@ def build(export_root: Path, output_dir: Path) -> None:
         for section_code in observed_sections:
             rows = sorted(
                 by_object_section.get((object_id, section_code), []),
-                key=lambda row: (safe_int(row.get("page_count")), row["bundle_id"]),
-                reverse=True,
+                key=canonical_bundle_sort_key,
             )
             if not rows:
                 status = "missing"

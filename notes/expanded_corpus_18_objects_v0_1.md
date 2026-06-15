@@ -40,6 +40,48 @@ The duplicate `СМ` export for `1748_25` was resolved by keeping one active bun
 
 - `E:/output/DocSpectrum/export_excluded/1748_25/doc_90d71fb3`
 
+## Analysis Modes
+
+The expanded corpus should support two simultaneous modes:
+
+- library mode: keep all available sections and grow the element/signature library as broadly as possible;
+- strict comparison mode: use a stable comparable slice when a clean `sections * objects` matrix is needed.
+
+Current strict core section set:
+
+- `АР`
+- `КР`
+- `ПОКР`
+- `ИД`
+- `ИОС5.1`
+- `ИОС5.4.1`
+- `ИОС5.5.1`
+- `СМ`
+
+Current objects with all 8 core sections:
+
+- `1724_25`
+- `1725_25`
+- `1731_25`
+- `1736_25`
+- `1737_25`
+- `1738_25`
+- `1739_25`
+- `1742_25`
+- `1743_25`
+- `1745_25`
+- `1747_25`
+- `1748_25`
+- `1749_25`
+- `1750_25`
+- `1751_25`
+- `1755_25`
+
+Objects outside the strict core slice remain useful for the library:
+
+- `1730_25`: has `ПОС`, no `ПОКР`;
+- `1732_25`: no `СМ`.
+
 ## N>2 Pairing
 
 `comparison_pairs_v0.csv` now uses `same_section_all_pairs_v0_1` over canonical object-section bundles.
