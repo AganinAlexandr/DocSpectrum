@@ -12,14 +12,14 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import json
 import math
-import re
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from text_features import normalize_text, sha1_text, text_tokens, word_shingles
 
 
 NUMERIC_FEATURES = [
@@ -61,9 +61,6 @@ COMBINED_AXIS_WEIGHTS = {
 }
 
 
-TOKEN_RE = re.compile(r"[\w]+", flags=re.UNICODE)
-
-
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         return list(csv.DictReader(handle))
@@ -102,10 +99,6 @@ def safe_int(value: Any) -> int:
 
 def round_float(value: float, digits: int = 4) -> float:
     return round(value, digits)
-
-
-def sha1_text(value: str) -> str:
-    return hashlib.sha1(value.encode("utf-8")).hexdigest()
 
 
 def cosine(left: list[float], right: list[float]) -> float:
@@ -195,20 +188,6 @@ def weighted_score(
     if not applicable_weight:
         return 0.0, 0.0
     return weighted_sum / applicable_weight, applicable_weight
-
-
-def normalize_text(value: str) -> str:
-    return " ".join(value.strip().lower().split())
-
-
-def text_tokens(value: str) -> list[str]:
-    return [token for token in TOKEN_RE.findall(value.lower()) if len(token) > 1]
-
-
-def word_shingles(tokens: list[str], size: int = 5) -> list[str]:
-    if len(tokens) < size:
-        return []
-    return [" ".join(tokens[index : index + size]) for index in range(len(tokens) - size + 1)]
 
 
 def build_text_profile(export_root: Path, object_id: str, bundle_id: str) -> dict[str, Counter[str] | int]:
