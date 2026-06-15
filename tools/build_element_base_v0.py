@@ -15,6 +15,7 @@ import hashlib
 import json
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
+from itertools import combinations
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +24,7 @@ SECTION_ORDER = {
     "АР": 10,
     "КР": 20,
     "ПОКР": 30,
+    "ПОС": 35,
     "ИД": 40,
     "ИОС5.1": 50,
     "ИОС5.4.1": 60,
@@ -88,6 +90,7 @@ def infer_section_code(file_name: str) -> str:
         ("ИОС5.5.1", ("ИОС5.5.1", "ИОС5.5")),
         ("ИОС5.1", ("ИОС5.1",)),
         ("ПОКР", ("ПОКР",)),
+        ("ПОС", ("ПОС",)),
         ("АР", ("АР",)),
         ("ИД", ("ИД",)),
         ("СМ", ("СМ",)),
@@ -105,7 +108,7 @@ def section_role(section_code: str) -> str:
         return "contrast_control"
     if section_code.startswith("ИОС"):
         return "engineering_core"
-    if section_code in {"АР", "КР", "ПОКР"}:
+    if section_code in {"АР", "КР", "ПОКР", "ПОС"}:
         return "project_section"
     if section_code == "ИД":
         return "non_pp87_but_useful"
@@ -567,27 +570,88 @@ def build(export_root: Path, output_dir: Path) -> None:
         ],
     )
 
+    section_counts = Counter(row["section_code"] for row in document_rows)
+    observed_sections = [
+        section
+        for section, _count in sorted(section_counts.items(), key=lambda item: SECTION_ORDER.get(item[0], 999))
+        if section != "UNKNOWN"
+    ]
+    objects = sorted({str(row["object_id"]) for row in document_rows})
+    by_object_section: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in document_rows:
+        if row["section_code"] != "UNKNOWN":
+            by_object_section[(row["object_id"], row["section_code"])].append(row)
+
+    object_section_rows = []
+    canonical_rows: dict[tuple[str, str], dict[str, Any]] = {}
+    for object_id in objects:
+        for section_code in observed_sections:
+            rows = sorted(
+                by_object_section.get((object_id, section_code), []),
+                key=lambda row: (safe_int(row.get("page_count")), row["bundle_id"]),
+                reverse=True,
+            )
+            if not rows:
+                status = "missing"
+            elif len(rows) == 1:
+                status = "ok"
+                canonical_rows[(object_id, section_code)] = rows[0]
+            else:
+                status = "duplicate"
+                canonical_rows[(object_id, section_code)] = rows[0]
+            object_section_rows.append(
+                {
+                    "object_id": object_id,
+                    "section_code": section_code,
+                    "section_role": section_role(section_code),
+                    "bundle_count": len(rows),
+                    "matrix_status": status,
+                    "canonical_bundle_id": rows[0]["bundle_id"] if rows else "",
+                    "bundle_ids": "|".join(row["bundle_id"] for row in rows),
+                    "file_names": "|".join(row["file_name"] for row in rows),
+                    "crc32s": "|".join(row["crc32"] for row in rows),
+                    "page_counts": "|".join(str(row["page_count"]) for row in rows),
+                }
+            )
+
+    write_csv(
+        output_dir / "object_section_matrix_v0.csv",
+        object_section_rows,
+        [
+            "object_id",
+            "section_code",
+            "section_role",
+            "bundle_count",
+            "matrix_status",
+            "canonical_bundle_id",
+            "bundle_ids",
+            "file_names",
+            "crc32s",
+            "page_counts",
+        ],
+    )
+
     pair_rows = []
     by_section: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for row in document_rows:
+    for (_object_id, _section_code), row in canonical_rows.items():
         by_section[row["section_code"]].append(row)
     for section_code, rows in sorted(by_section.items(), key=lambda item: SECTION_ORDER.get(item[0], 999)):
         if len(rows) < 2:
             continue
-        left, right = sorted(rows, key=lambda row: row["object_id"])[:2]
-        pair_rows.append(
-            {
-                "pair_id": f"{section_code}__{left['object_id']}__{right['object_id']}",
-                "section_code": section_code,
-                "left_object_id": left["object_id"],
-                "left_bundle_id": left["bundle_id"],
-                "left_crc32": left["crc32"],
-                "right_object_id": right["object_id"],
-                "right_bundle_id": right["bundle_id"],
-                "right_crc32": right["crc32"],
-                "comparison_mode": "same_section_pair_v0",
-            }
-        )
+        for left, right in combinations(sorted(rows, key=lambda row: row["object_id"]), 2):
+            pair_rows.append(
+                {
+                    "pair_id": f"{section_code}__{left['object_id']}__{right['object_id']}",
+                    "section_code": section_code,
+                    "left_object_id": left["object_id"],
+                    "left_bundle_id": left["bundle_id"],
+                    "left_crc32": left["crc32"],
+                    "right_object_id": right["object_id"],
+                    "right_bundle_id": right["bundle_id"],
+                    "right_crc32": right["crc32"],
+                    "comparison_mode": "same_section_all_pairs_v0_1",
+                }
+            )
     write_csv(
         output_dir / "comparison_pairs_v0.csv",
         pair_rows,
@@ -604,7 +668,6 @@ def build(export_root: Path, output_dir: Path) -> None:
         ],
     )
 
-    section_counts = Counter(row["section_code"] for row in document_rows)
     summary = {
         "schema_version": "element_base_v0",
         "generated_at": generated_at,
@@ -626,8 +689,16 @@ def build(export_root: Path, output_dir: Path) -> None:
             "table_signatures": "table_signatures_v0.csv",
             "corpus_signatures": "corpus_signatures_v0.csv",
             "comparison_pairs": "comparison_pairs_v0.csv",
+            "object_section_matrix": "object_section_matrix_v0.csv",
             "section_passports": "section_passports/*.json",
         },
+        "object_section_matrix": {
+            "observed_sections": observed_sections,
+            "missing_count": sum(1 for row in object_section_rows if row["matrix_status"] == "missing"),
+            "duplicate_count": sum(1 for row in object_section_rows if row["matrix_status"] == "duplicate"),
+        },
+        "comparison_pair_count": len(pair_rows),
+        "comparison_pair_mode": "same_section_all_pairs_v0_1",
         "v0_interpretation": (
             "Experimental element base for validating the DocSpectrum measurement "
             "approach. It may be rebuilt when a larger corpus suggests better "
@@ -656,7 +727,8 @@ Contents:
 - `page_signatures_v0.csv` - page-level layout signatures
 - `table_signatures_v0.csv` - table layout/content signatures
 - `corpus_signatures_v0.csv` - repeated page/table signatures across the corpus
-- `comparison_pairs_v0.csv` - same-section pairs for the first comparison pass
+- `object_section_matrix_v0.csv` - object/section coverage and duplicate diagnostics
+- `comparison_pairs_v0.csv` - same-section N>2 pairs over canonical object-section bundles
 - `section_passports/*.json` - library-independent section passports v0
 
 This is a research `v0` artifact. It is intended to test whether the
