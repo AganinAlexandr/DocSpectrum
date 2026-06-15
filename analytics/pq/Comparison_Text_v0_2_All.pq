@@ -1,5 +1,5 @@
 let
-    Source = fxLoadCsv(pDocSpectrumOutputRoot & "\comparison_results_v0_2_18_n2\comparison_results_v0_2.csv"),
+    Source = fxLoadCsv(pDocSpectrumOutputRoot & "\comparison_results_v0_2_35_n2\comparison_results_v0_2.csv"),
     Typed = Table.TransformColumnTypes(
         Source,
         {

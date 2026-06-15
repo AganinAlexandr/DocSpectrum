@@ -125,6 +125,16 @@ def load_entity_idf(corpus_dir: Path) -> dict[tuple[str, str, str], float]:
     }
 
 
+def build_entity_idf_index(
+    entity_idf: dict[tuple[str, str, str], float],
+) -> dict[tuple[str, str], dict[str, float]]:
+    """Pre-index IDF by (section, entity kind) for pairwise scoring."""
+    index: dict[tuple[str, str], dict[str, float]] = defaultdict(dict)
+    for (section_code, entity_kind, entity_hash), idf in entity_idf.items():
+        index[(section_code, entity_kind)][entity_hash] = idf
+    return index
+
+
 def load_baseline_v0_2(path: Path) -> dict[str, dict[str, str]]:
     if not path.exists():
         return {}
@@ -156,6 +166,7 @@ def build(
     pairs = read_csv(base_dir / "comparison_pairs_v0.csv")
     baseline_v0_2 = load_baseline_v0_2(baseline_v0_2_csv)
     entity_idf = load_entity_idf(corpus_dir)
+    entity_idf_index = build_entity_idf_index(entity_idf)
     document_entities = build_document_entity_cache(documents, base_dir, export_root)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -173,11 +184,7 @@ def build(
         axis_values: dict[str, dict[str, Any]] = {}
         axis_details: dict[str, dict[str, Any]] = {}
         for entity_kind in SCORING_ENTITY_WEIGHTS:
-            idf_by_hash = {
-                entity_hash: idf
-                for (sec, kind, entity_hash), idf in entity_idf.items()
-                if sec == section_code and kind == entity_kind
-            }
+            idf_by_hash = entity_idf_index.get((section_code, entity_kind), {})
             value, status, shared_idf, total_idf = idf_weighted_jaccard(
                 left_entities[entity_kind],
                 right_entities[entity_kind],
@@ -209,11 +216,7 @@ def build(
 
         diagnostic_axes = {}
         for entity_kind in DIAGNOSTIC_ENTITY_KINDS:
-            idf_by_hash = {
-                entity_hash: idf
-                for (sec, kind, entity_hash), idf in entity_idf.items()
-                if sec == section_code and kind == entity_kind
-            }
+            idf_by_hash = entity_idf_index.get((section_code, entity_kind), {})
             value, status, shared_idf, total_idf = idf_weighted_jaccard(
                 left_entities[entity_kind],
                 right_entities[entity_kind],
@@ -274,11 +277,7 @@ def build(
                     entity_kind: top_shared_idf(
                         left_entities[entity_kind],
                         right_entities[entity_kind],
-                        {
-                            entity_hash: idf
-                            for (sec, kind, entity_hash), idf in entity_idf.items()
-                            if sec == section_code and kind == entity_kind
-                        },
+                        entity_idf_index.get((section_code, entity_kind), {}),
                     )
                     for entity_kind in SCORING_ENTITY_WEIGHTS
                 }

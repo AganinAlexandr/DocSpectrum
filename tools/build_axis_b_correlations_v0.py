@@ -111,6 +111,37 @@ def round_float(value: float | None, digits: int = 4) -> float | str:
     return round(value, digits)
 
 
+def p_value_normal_approx(correlation: float, n: int) -> float | None:
+    """Approximate two-sided p-value for a rank correlation sanity check."""
+    if n < 4:
+        return None
+    if abs(correlation) >= 1:
+        return 0.0
+    z_score = abs(correlation) * math.sqrt(n - 1)
+    return math.erfc(z_score / math.sqrt(2))
+
+
+def add_bh_q_values(rows: list[dict[str, Any]], alpha: float) -> None:
+    valid = [
+        (index, safe_float(row.get("p_value_approx")))
+        for index, row in enumerate(rows)
+        if safe_float(row.get("p_value_approx")) is not None
+    ]
+    valid.sort(key=lambda item: item[1])
+    total = len(valid)
+    previous_q = 1.0
+    q_by_index: dict[int, float] = {}
+    for rank_from_end, (index, p_value) in enumerate(reversed(valid), start=1):
+        rank = total - rank_from_end + 1
+        q_value = min(previous_q, (p_value or 0.0) * total / rank)
+        previous_q = q_value
+        q_by_index[index] = q_value
+    for index, row in enumerate(rows):
+        q_value = q_by_index.get(index)
+        row["bh_q_value"] = round_float(q_value)
+        row[f"fdr_significant_{str(alpha).replace('.', '_')}"] = bool(q_value is not None and q_value <= alpha)
+
+
 def rankdata(values: list[float]) -> list[float]:
     indexed = sorted(enumerate(values), key=lambda item: item[1])
     ranks = [0.0] * len(values)
@@ -149,6 +180,12 @@ def load_objects(path: Path) -> dict[str, dict[str, str]]:
     return {row["object_id"]: row for row in read_csv(path)}
 
 
+def load_object_ids_from_documents(path: Path | None) -> set[str]:
+    if not path:
+        return set()
+    return {row["object_id"] for row in read_csv(path)}
+
+
 def load_entity_summaries(path: Path) -> dict[tuple[str, str, str], dict[str, str]]:
     return {
         (row["object_id"], row["bundle_id"], row["entity_kind"]): row
@@ -183,15 +220,20 @@ def build_joined_rows(
     documents: list[dict[str, str]],
     objects: dict[str, dict[str, str]],
     entity_summaries: dict[tuple[str, str, str], dict[str, str]],
+    first_subset_object_ids: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     rows = []
     entity_kinds = sorted({key[2] for key in entity_summaries})
     for doc in documents:
+        subset_label = ""
+        if first_subset_object_ids is not None:
+            subset_label = "first18" if doc["object_id"] in first_subset_object_ids else "added17"
         obj = objects.get(doc["object_id"], {})
         base: dict[str, Any] = {
             "object_id": doc["object_id"],
             "bundle_id": doc["bundle_id"],
             "section_code": doc["section_code"],
+            "subset_label": subset_label,
             "project_subgroup": obj.get("project_subgroup", ""),
             "address_normalized": obj.get("address_normalized", ""),
             "file_name": doc.get("file_name", ""),
@@ -213,7 +255,7 @@ def build_joined_rows(
     return rows
 
 
-def correlation_rows(joined_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def correlation_rows(joined_rows: list[dict[str, Any]], subset_label: str, fdr_alpha: float) -> list[dict[str, Any]]:
     rows = []
     section_codes = sorted({row["section_code"] for row in joined_rows})
     metric_names = DOCUMENT_COUNT_METRICS + DOCUMENT_RATIO_METRICS
@@ -249,6 +291,7 @@ def correlation_rows(joined_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     continue
                 rows.append(
                     {
+                        "subset_label": subset_label,
                         "section_code": section_code,
                         "tei_feature": tei_feature,
                         "metric_name": metric_name,
@@ -259,10 +302,70 @@ def correlation_rows(joined_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                         "spearman": round_float(corr),
                         "abs_spearman": round_float(abs(corr)),
                         "direction": "positive" if corr > 0 else "negative" if corr < 0 else "zero",
+                        "p_value_approx": round_float(p_value_normal_approx(corr, len(pairs)), 6),
                     }
                 )
+    add_bh_q_values(rows, fdr_alpha)
     rows.sort(key=lambda row: (-metric_float(row["abs_spearman"]), row["section_code"], row["tei_feature"]))
     return rows
+
+
+def index_correlations(rows: list[dict[str, Any]]) -> dict[tuple[str, str, str], dict[str, Any]]:
+    return {
+        (row["section_code"], row["tei_feature"], row["metric_name"]): row
+        for row in rows
+    }
+
+
+def replication_rows(
+    first_rows: list[dict[str, Any]],
+    added_rows: list[dict[str, Any]],
+    all_rows: list[dict[str, Any]],
+    threshold: float,
+) -> list[dict[str, Any]]:
+    added_index = index_correlations(added_rows)
+    all_index = index_correlations(all_rows)
+    candidates = [row for row in first_rows if metric_float(row["abs_spearman"]) >= threshold]
+    output = []
+    for first in candidates:
+        key = (first["section_code"], first["tei_feature"], first["metric_name"])
+        added = added_index.get(key)
+        all35 = all_index.get(key, {})
+        first_corr = metric_float(first["spearman"])
+        added_corr = metric_float(added["spearman"]) if added else None
+        added_abs = abs(added_corr or 0.0)
+        if added is None:
+            status = "insufficient_added17"
+        elif added_abs >= threshold and first_corr and added_corr and ((first_corr > 0) != (added_corr > 0)):
+            status = "sign_flip"
+        elif added_abs >= threshold:
+            status = "persisted"
+        else:
+            status = "regressed_to_zero"
+        output.append(
+            {
+                "section_code": first["section_code"],
+                "tei_feature": first["tei_feature"],
+                "metric_name": first["metric_name"],
+                "metric_family": first["metric_family"],
+                "replication_threshold_abs_spearman": threshold,
+                "replication_status": status,
+                "first18_n": first["n"],
+                "first18_spearman": first["spearman"],
+                "first18_abs_spearman": first["abs_spearman"],
+                "first18_bh_q_value": first.get("bh_q_value", ""),
+                "added17_n": added.get("n", "") if added else "",
+                "added17_spearman": added.get("spearman", "") if added else "",
+                "added17_abs_spearman": added.get("abs_spearman", "") if added else "",
+                "added17_bh_q_value": added.get("bh_q_value", "") if added else "",
+                "all35_n": all35.get("n", ""),
+                "all35_spearman": all35.get("spearman", ""),
+                "all35_abs_spearman": all35.get("abs_spearman", ""),
+                "all35_bh_q_value": all35.get("bh_q_value", ""),
+            }
+        )
+    output.sort(key=lambda row: (row["replication_status"], -metric_float(row["first18_abs_spearman"]), row["section_code"]))
+    return output
 
 
 def bucket_summary_rows(joined_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -317,13 +420,33 @@ def build(
     documents_index_path: Path,
     section_typicality_path: Path,
     output_dir: Path,
+    first_subset_documents_index_path: Path | None = None,
+    replication_threshold: float = 0.45,
+    fdr_alpha: float = 0.10,
 ) -> None:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     objects = load_objects(object_registry_path)
     documents = read_csv(documents_index_path)
     entity_summaries = load_entity_summaries(section_typicality_path)
-    joined_rows = build_joined_rows(documents, objects, entity_summaries)
-    corr_rows = correlation_rows(joined_rows)
+    first_subset_object_ids = (
+        load_object_ids_from_documents(first_subset_documents_index_path)
+        if first_subset_documents_index_path
+        else None
+    )
+    joined_rows = build_joined_rows(documents, objects, entity_summaries, first_subset_object_ids)
+    all_corr_rows = correlation_rows(joined_rows, "all", fdr_alpha)
+    corr_rows = list(all_corr_rows)
+    first_corr_rows: list[dict[str, Any]] = []
+    added_corr_rows: list[dict[str, Any]] = []
+    replication = []
+    if first_subset_object_ids is not None:
+        first_joined_rows = [row for row in joined_rows if row["subset_label"] == "first18"]
+        added_joined_rows = [row for row in joined_rows if row["subset_label"] == "added17"]
+        first_corr_rows = correlation_rows(first_joined_rows, "first18", fdr_alpha)
+        added_corr_rows = correlation_rows(added_joined_rows, "added17", fdr_alpha)
+        corr_rows.extend(first_corr_rows)
+        corr_rows.extend(added_corr_rows)
+        replication = replication_rows(first_corr_rows, added_corr_rows, all_corr_rows, replication_threshold)
     bucket_rows = bucket_summary_rows(joined_rows)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -333,6 +456,7 @@ def build(
         output_dir / "axis_b_correlations_v0.csv",
         corr_rows,
         [
+            "subset_label",
             "section_code",
             "tei_feature",
             "metric_name",
@@ -341,8 +465,36 @@ def build(
             "spearman",
             "abs_spearman",
             "direction",
+            "p_value_approx",
+            "bh_q_value",
+            f"fdr_significant_{str(fdr_alpha).replace('.', '_')}",
         ],
     )
+    if replication:
+        write_csv(
+            output_dir / "axis_b_replication_v0.csv",
+            replication,
+            [
+                "section_code",
+                "tei_feature",
+                "metric_name",
+                "metric_family",
+                "replication_threshold_abs_spearman",
+                "replication_status",
+                "first18_n",
+                "first18_spearman",
+                "first18_abs_spearman",
+                "first18_bh_q_value",
+                "added17_n",
+                "added17_spearman",
+                "added17_abs_spearman",
+                "added17_bh_q_value",
+                "all35_n",
+                "all35_spearman",
+                "all35_abs_spearman",
+                "all35_bh_q_value",
+            ],
+        )
     bucket_fields = list(bucket_rows[0].keys()) if bucket_rows else []
     write_csv(output_dir / "axis_b_tei_bucket_summary_v0.csv", bucket_rows, bucket_fields)
 
@@ -353,9 +505,16 @@ def build(
         "object_registry_path": str(object_registry_path),
         "documents_index_path": str(documents_index_path),
         "section_typicality_path": str(section_typicality_path),
+        "first_subset_documents_index_path": str(first_subset_documents_index_path) if first_subset_documents_index_path else "",
         "output_dir": str(output_dir),
         "document_metric_rows": len(joined_rows),
         "correlation_rows": len(corr_rows),
+        "all35_correlation_rows": len(all_corr_rows),
+        "first18_correlation_rows": len(first_corr_rows),
+        "added17_correlation_rows": len(added_corr_rows),
+        "replication_rows": len(replication),
+        "replication_threshold_abs_spearman": replication_threshold,
+        "fdr_alpha": fdr_alpha,
         "bucket_summary_rows": len(bucket_rows),
         "tei_features": TEI_FEATURES,
         "document_count_metrics": DOCUMENT_COUNT_METRICS,
@@ -370,6 +529,7 @@ def build(
         "files": {
             "document_metrics": "axis_b_document_metrics_v0.csv",
             "correlations": "axis_b_correlations_v0.csv",
+            "replication": "axis_b_replication_v0.csv" if replication else "",
             "tei_bucket_summary": "axis_b_tei_bucket_summary_v0.csv",
         },
     }
@@ -395,6 +555,8 @@ Key policy:
 - TEI features are not used in core similarity scoring.
 - Rank correlations are used because engineering components follow stepped nominal sizes.
 - Document size controls are exposed through page count and per-page ratios.
+- If `first_subset_documents_index_path` is provided, correlations are emitted for
+  `all`, `first18`, and `added17`, plus disjoint replication statuses.
 """
     (output_dir / "README.md").write_text(readme, encoding="utf-8")
 
@@ -421,12 +583,32 @@ def main() -> None:
         default=r"E:\output\DocSpectrum\axis_b_correlations_v0_18_n2",
         help="Directory for Axis B correlation artifacts.",
     )
+    parser.add_argument(
+        "--first-subset-documents-index",
+        default="",
+        help="Optional documents_index.csv defining the first disjoint subset for replication.",
+    )
+    parser.add_argument(
+        "--replication-threshold",
+        type=float,
+        default=0.45,
+        help="Absolute Spearman threshold for persisted/regressed replication status.",
+    )
+    parser.add_argument(
+        "--fdr-alpha",
+        type=float,
+        default=0.10,
+        help="Benjamini-Hochberg alpha used for the FDR significance flag.",
+    )
     args = parser.parse_args()
     build(
         Path(args.object_registry),
         Path(args.documents_index),
         Path(args.section_typicality),
         Path(args.output_dir),
+        Path(args.first_subset_documents_index) if args.first_subset_documents_index else None,
+        args.replication_threshold,
+        args.fdr_alpha,
     )
 
 
