@@ -92,10 +92,45 @@ median, but the order-of-magnitude drop in cross-cohort similarity.
   more organizations, `compare_pairs_v0_3.py` needs a summary-only or
   skip-heavy-json mode.
 
+## Nearest-Neighbor Check
+
+Generated artifacts:
+
+- `E:/output/DocSpectrum/cross_org_research_v0/cross_org_nearest_neighbors_v0.csv`
+- `E:/output/DocSpectrum/cross_org_research_v0/cross_org_top_pairs_v0.csv`
+- `E:/output/DocSpectrum/cross_org_research_v0/cross_org_section_extremes_v0.csv`
+- `E:/output/DocSpectrum/cross_org_research_v0/cross_org_neighbors_v0.json`
+
+Cross-pair section extremes:
+
+| section | cross median | p95 | p99 | max |
+| --- | ---: | ---: | ---: | ---: |
+| АР | 0.0549 | 0.0579 | 0.0592 | 0.0602 |
+| ИОС5.1 | 0.1023 | 0.1132 | 0.1149 | 0.1157 |
+| ИОС5.4.1 | 0.0381 | 0.0636 | 0.0832 | 0.1196 |
+| ИОС5.5.1 | 0.0469 | 0.0577 | 0.0583 | 0.0601 |
+| КР | 0.0650 | 0.0744 | 0.0751 | 0.0767 |
+| ПОКР | 0.0114 | 0.0127 | 0.0127 | 0.0129 |
+| ПОС | 0.0294 | 0.0594 | 0.0623 | 0.0650 |
+| СМ | 0.0587 | 0.1443 | 0.1468 | 0.1515 |
+
+Interpretation:
+
+- No cross-organization pair reaches within-organization similarity levels.
+- `СМ` has the highest cross tail (`max=0.1515`), but the signal is almost
+  entirely textual (`text_segment/text_word_shingle`); table layout/content and
+  page signature remain zero in the top tail.
+- `ИОС5.4.1` has the most interesting non-estimate tail among engineering
+  sections (`max=0.1196`), with small table-layout overlap, but still far below
+  within-cohort medians.
+- Top pairs are concentrated around a small number of documents, which suggests
+  shared normative wording or packaging effects rather than a single strong
+  cross-organization borrowing event.
+- The current nearest-neighbor evidence strengthens Axis C separation: the
+  nearest cross-neighbor is still distant.
+
 ## Next Research Steps
 
-- Build nearest-neighbor diagnostics for cross-org pairs: for each NK document,
-  identify closest RSPK documents by section.
 - Separate "organization handwriting" from "section packaging" effects,
   especially for combined UUiR documents.
 - Add a performance option to avoid writing full per-pair JSON when only
