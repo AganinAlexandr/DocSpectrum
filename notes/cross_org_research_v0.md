@@ -1,0 +1,103 @@
+# cross-org research v0
+
+This note captures the first research-only comparison between the RSPK UUiR
+baseline and the NK-Engineering UUiR export set.
+
+It is not a review packet yet. The goal is to inspect the new cross-organization
+signal before deciding what should become an Opus-reviewed milestone.
+
+## Inputs
+
+- RSPK cohort: `E:/output/DocSpectrum/export`
+- NK cohort: `E:/output/DocSpectrum/export_nk_34_object_view`
+- combined export view: `E:/output/DocSpectrum/export_rpsk35_nk34_object_view`
+- pairwise results: `E:/output/DocSpectrum/comparison_results_v0_3_rpsk35_nk34/comparison_results_v0_3.csv`
+- research summary: `E:/output/DocSpectrum/cross_org_research_v0/`
+
+The cohort labels are applied only after pairwise scoring. They are research
+metadata and do not influence the core similarity calculation.
+
+## Corpus Snapshot
+
+- cohorts: `RSPK=35 objects`, `NK=34 objects`
+- combined documents/bundles: `475`
+- pairwise rows: `13534`
+- pair type counts:
+  - `within_rspk`: `4450`
+  - `within_nk`: `2748`
+  - `cross_nk_rspk`: `6336`
+- unknown pair count: `0`
+
+NK coverage is good for the main recurring sections but not uniform:
+
+- `АР`: `32`
+- `КР`: `32`
+- `ИОС5.1`: `33`
+- `ИОС5.4.1`: `32`
+- `ПОКР`: `27`
+- `СМ`: `27`
+- `ИОС5.5.1`: `6`
+- `ПОС`: `6`
+- `UNKNOWN`: `1`
+
+The single `UNKNOWN` file is kept diagnostic for now because combined UUiR
+projects can package sections differently. We should not force it into a section
+code until the domain rule is explicit.
+
+## Within/Cross Similarity
+
+Median `idf_similarity_v0_3` by section:
+
+| section | within RSPK | within NK | cross RSPK/NK | separation gap |
+| --- | ---: | ---: | ---: | ---: |
+| ПОКР | 0.6437 | 0.7231 | 0.0114 | 0.6720 |
+| АР | 0.6441 | 0.6118 | 0.0549 | 0.5731 |
+| ИОС5.5.1 | 0.5732 | 0.6125 | 0.0469 | 0.5460 |
+| КР | 0.6930 | 0.4345 | 0.0650 | 0.4987 |
+| ИОС5.1 | 0.6004 | 0.5633 | 0.1023 | 0.4795 |
+| ПОС | 0.5788 | 0.2997 | 0.0294 | 0.4099 |
+| СМ | 0.2381 | 0.5460 | 0.0587 | 0.3334 |
+| ИОС5.4.1 | 0.3567 | 0.2610 | 0.0381 | 0.2707 |
+
+Interpretation:
+
+- Cross-organization pairs are much lower than within-organization pairs across
+  all comparable sections.
+- The result is a strong first research signal for Axis C
+  (organization/project handwriting).
+- `ИОС5.5.1` and `ПОС` in NK have only `6` documents each (`15` within pairs),
+  so their medians are small-n diagnostics.
+- `СМ` remains special: RSPK has low within similarity while NK is much more
+  homogeneous, so estimates for this section should stay cautious.
+
+## NK vs RSPK Baseline
+
+When computed in their separate libraries, NK is more heterogeneous than RSPK in
+some sections and more homogeneous in others:
+
+- stronger NK heterogeneity: `КР`, `ПОС`, `ИОС5.4.1`
+- stronger NK homogeneity: `СМ`, `ПОКР`
+
+In the combined library, the key observation is not the exact within-cohort
+median, but the order-of-magnitude drop in cross-cohort similarity.
+
+## Caveats
+
+- This is a research checkpoint, not a reviewed milestone.
+- Cohort separation is measured on one contrast pair: RSPK vs NK.
+- The NK set has uneven section coverage.
+- The current page-signature axis is still strictness-prone; the headline uses
+  `idf_similarity_v0_3`, not page signature alone.
+- Combined v0.3 generation is already heavy at `13534` pairs. Before scaling to
+  more organizations, `compare_pairs_v0_3.py` needs a summary-only or
+  skip-heavy-json mode.
+
+## Next Research Steps
+
+- Build nearest-neighbor diagnostics for cross-org pairs: for each NK document,
+  identify closest RSPK documents by section.
+- Separate "organization handwriting" from "section packaging" effects,
+  especially for combined UUiR documents.
+- Add a performance option to avoid writing full per-pair JSON when only
+  aggregate research tables are needed.
+- Decide which subset of this research should become the next review packet.
