@@ -151,7 +151,8 @@ The NK corpus is internally clustered. The clusters likely reflect a mixture of:
 
 - address/geography series;
 - project package style;
-- combined `ОВ, ГВС` packaging;
+- object-series effects inside a mostly uniform `ОВ+ГВС` NK corpus;
+- the two `ОВ`-only objects as a control/edge case, not the main explanation;
 - inherited templates;
 - possible different internal authors/performers.
 

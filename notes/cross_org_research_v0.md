@@ -163,8 +163,8 @@ Interpretation:
 
 ## Next Research Steps
 
-- Separate "organization handwriting" from "section packaging" effects,
-  especially for combined UUiR documents.
+- Separate organization handwriting from title/section formatting style and
+  object-series effects.
 - Add a performance option to avoid writing full per-pair JSON when only
   aggregate research tables are needed.
 - Decide which subset of this research should become the next review packet.
