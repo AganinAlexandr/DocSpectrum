@@ -129,6 +129,38 @@ Interpretation:
 - The current nearest-neighbor evidence strengthens Axis C separation: the
   nearest cross-neighbor is still distant.
 
+## Page-Level Check
+
+The first page-level check used exact `page_signature` matches and coarse
+title-page structural buckets across the combined RSPK35 + NK34 corpus.
+
+Results:
+
+- exact cross-organization `page_signature` matches: `1` signature;
+- the only exact shared page signature is trivial: image-only page
+  (`elements=1`, `text=0`, `tables=0`, `images=1`);
+- no exact cross-organization structural keys were found for page `1` or page
+  `2`;
+- no coarse cross-organization title-page keys were found for page `1` or page
+  `2`, even after reducing the key to page size + binned counts of text, lines,
+  frames, images and tables.
+
+Within-cohort title structures are stable but different:
+
+- RSPK page 1/2 is dominated by title pages with frames and tables;
+- NK page 1/2 is dominated by title pages with frames/images but no tables;
+- this means cover/title pages are useful for organization/package style, but
+  they are not yet a cross-organization bridge in this corpus.
+
+Interpretation:
+
+- We do not currently see a widely reused page-level diagram across RSPK and NK
+  through exact page signatures.
+- The current exact page signature is too strict for near-same diagrams; future
+  `page-bucketing` or visual/vector signatures are still needed.
+- Title pages support Axis C separation: both organizations have stable
+  internal packaging patterns, but their structural title-page patterns differ.
+
 ## Next Research Steps
 
 - Separate "organization handwriting" from "section packaging" effects,
