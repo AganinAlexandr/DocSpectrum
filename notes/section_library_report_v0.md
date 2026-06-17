@@ -72,9 +72,26 @@ missing text coverage rows: 0
 Review priority:
 
 ```text
-review_clear 297
-review_watch 148
-review_high   29
+review_clear 379
+review_watch  95
+review_high    0
+```
+
+`review_priority` was normalized after RP-018 review. The first implementation
+used an absolute `copy_review_needed_occurrence_count` threshold and therefore
+over-flagged large documents. The current v0 rule uses:
+
+- `text_copy_review_needed_ratio = copy_review_needed / text_segment_count`;
+- `review_high` only for table borrowing candidates or high normalized
+  copy-review ratio;
+- foreign organization text ratio as `review_watch`, not `review_high`, until
+  positive cases calibrate it.
+
+On the clean RSPK/NK negative-control corpus, this removes false red alerts:
+
+```text
+max text_copy_review_needed_ratio: 0.0202
+review_high: 0
 ```
 
 Coverage bands:

@@ -80,10 +80,14 @@ def average(values: list[float]) -> float:
     return sum(values) / len(values)
 
 
-def classify_review_priority(foreign_ratio: float, copy_review_count: int, table_borrowing_count: int) -> str:
-    if table_borrowing_count > 0 or foreign_ratio >= 0.2 or copy_review_count >= 20:
+def classify_review_priority(
+    foreign_ratio: float,
+    copy_review_ratio: float,
+    table_borrowing_count: int,
+) -> str:
+    if table_borrowing_count > 0 or copy_review_ratio >= 0.05:
         return "review_high"
-    if foreign_ratio >= 0.05 or copy_review_count > 0:
+    if foreign_ratio >= 0.05 or copy_review_ratio >= 0.005:
         return "review_watch"
     return "review_clear"
 
@@ -130,6 +134,8 @@ def build(table_coverage_path: Path, text_coverage_path: Path, output_dir: Path)
         text_segment_conformance = safe_float(text.get("segment_org_text_conformance_ratio") if text else "")
         text_foreign = safe_float(text.get("foreign_org_text_ratio") if text else "")
         copy_review_count = safe_int(text.get("copy_review_needed_occurrence_count") if text else "")
+        text_segment_count = safe_int(text.get("text_segment_occurrence_count") if text else "")
+        copy_review_ratio = copy_review_count / text_segment_count if text_segment_count else 0.0
         shingle_coverage = safe_float(text.get("text_shingle_coverage_ratio") if text else "")
 
         headline_coverages = []
@@ -145,7 +151,7 @@ def build(table_coverage_path: Path, text_coverage_path: Path, output_dir: Path)
         headline_residual = 1.0 - headline_coverage if headline_coverages else 0.0
         headline_conformance = average(headline_conformances)
         max_foreign_ratio = max(table_foreign, text_foreign)
-        review_priority = classify_review_priority(max_foreign_ratio, copy_review_count, table_borrowing_count)
+        review_priority = classify_review_priority(max_foreign_ratio, copy_review_ratio, table_borrowing_count)
 
         report_rows.append(
             {
@@ -171,7 +177,8 @@ def build(table_coverage_path: Path, text_coverage_path: Path, output_dir: Path)
                 "text_segment_org_conformance_ratio": round_float(text_segment_conformance),
                 "text_foreign_org_ratio": round_float(text_foreign),
                 "text_copy_review_needed_occurrence_count": copy_review_count,
-                "text_segment_occurrence_count": safe_int(text.get("text_segment_occurrence_count") if text else ""),
+                "text_copy_review_needed_ratio": round_float(copy_review_ratio),
+                "text_segment_occurrence_count": text_segment_count,
                 "text_shingle_coverage_ratio_diagnostic": round_float(shingle_coverage),
                 "table_coverage_status": table_status,
                 "text_coverage_status": text_status,
@@ -210,6 +217,7 @@ def build(table_coverage_path: Path, text_coverage_path: Path, output_dir: Path)
             "text_segment_org_conformance_ratio",
             "text_foreign_org_ratio",
             "text_copy_review_needed_occurrence_count",
+            "text_copy_review_needed_ratio",
             "text_segment_occurrence_count",
             "text_shingle_coverage_ratio_diagnostic",
             "table_coverage_status",
@@ -264,6 +272,7 @@ def build(table_coverage_path: Path, text_coverage_path: Path, output_dir: Path)
                 "text shingles are diagnostic only and are not included in headline coverage.",
                 "residual means unexplained by the v0 library layers, not proven original authorship.",
                 "review_priority is a triage hint, not a legal conclusion.",
+                "copy-review triage is normalized by text_segment_occurrence_count to avoid document-size artifacts.",
                 "table and text source metrics remain available as separate columns.",
             ],
         },
