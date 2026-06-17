@@ -116,10 +116,17 @@ def classify_org_distinctiveness(org_object_counts: Counter[str], section_org_co
     return org_class, dominant_org, dominant_count, dominant_ratio, second_ratio, delta
 
 
-def derive_candidate_class(org_scope: str, org_distinctiveness_class: str) -> str:
+def derive_candidate_class(
+    org_scope: str,
+    org_distinctiveness_class: str,
+    section_df_ratio: float,
+    copy_review_max_section_df_ratio: float,
+) -> str:
     if org_scope != "cross_org":
         return "org_text_pattern"
     if org_distinctiveness_class == "cross_org_common":
+        return "normative_text"
+    if section_df_ratio > copy_review_max_section_df_ratio:
         return "normative_text"
     return "cross_org_text_bridge"
 
@@ -196,6 +203,38 @@ def extract_text_occurrences(export_root: Path, doc: dict[str, str], shingle_siz
     return occurrences
 
 
+def sample_evidence_occurrences(
+    occurrences: list[dict[str, Any]],
+    object_to_cohort: dict[str, str],
+    max_evidence_per_candidate: int,
+) -> list[dict[str, Any]]:
+    if len(occurrences) <= max_evidence_per_candidate:
+        return occurrences
+
+    by_cohort: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in occurrences:
+        by_cohort[object_to_cohort.get(row["object_id"], "UNKNOWN")].append(row)
+
+    sample: list[dict[str, Any]] = []
+    seen_locations: set[tuple[str, str, str, str]] = set()
+    per_cohort_seed = max(1, max_evidence_per_candidate // max(1, len(by_cohort)) // 2)
+    for cohort in sorted(by_cohort):
+        for row in by_cohort[cohort][:per_cohort_seed]:
+            key = (row["object_id"], row["bundle_id"], str(row["text_segment_id"]), str(row["shingle_index"]))
+            if key not in seen_locations:
+                sample.append(row)
+                seen_locations.add(key)
+
+    for row in occurrences:
+        if len(sample) >= max_evidence_per_candidate:
+            break
+        key = (row["object_id"], row["bundle_id"], str(row["text_segment_id"]), str(row["shingle_index"]))
+        if key not in seen_locations:
+            sample.append(row)
+            seen_locations.add(key)
+    return sample
+
+
 def candidate_matches_expected_org(candidate: dict[str, Any], document_cohort: str) -> bool:
     if document_cohort in {"", "UNKNOWN"}:
         return False
@@ -223,6 +262,7 @@ def build(
     min_segment_chars: int,
     shingle_size: int,
     max_evidence_per_candidate: int,
+    copy_review_max_section_df_ratio: float,
 ) -> None:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     object_to_cohort, cohort_object_counts = load_object_cohorts(cohorts)
@@ -274,7 +314,13 @@ def build(
             section_org_counts,
         )
         org_scope = "cross_org" if len(org_object_counts) > 1 else "single_org"
-        text_candidate_class = derive_candidate_class(org_scope, org_class)
+        section_df_ratio = ratio(len(docs), section_document_count)
+        text_candidate_class = derive_candidate_class(
+            org_scope,
+            org_class,
+            section_df_ratio,
+            copy_review_max_section_df_ratio,
+        )
         uc3_signal_status = derive_uc3_signal_status(text_candidate_class)
         token_count_mode = token_counts.most_common(1)[0][0] if token_counts else 0
         char_count_mode = char_counts.most_common(1)[0][0] if char_counts else 0
@@ -309,7 +355,7 @@ def build(
             "section_object_count": section_object_count,
             "section_document_count": section_document_count,
             "coverage_object_ratio": round_float(ratio(len(objects), section_object_count)),
-            "coverage_document_ratio": round_float(ratio(len(docs), section_document_count)),
+            "coverage_document_ratio": round_float(section_df_ratio),
             "section_idf": round_float(section_idf),
             "org_scope": org_scope,
             "org_distinctiveness_class": org_class,
@@ -321,6 +367,7 @@ def build(
             "org_object_counts": "|".join(f"{org}:{count}" for org, count in sorted(org_object_counts.items())),
             "org_occurrence_counts": "|".join(f"{org}:{count}" for org, count in sorted(org_occurrence_counts.items())),
             "uc3_signal_status": uc3_signal_status,
+            "copy_review_max_section_df_ratio": copy_review_max_section_df_ratio,
             "token_count_mode": token_count_mode,
             "char_count_mode": char_count_mode,
             "triviality_status": triviality_status,
@@ -334,7 +381,8 @@ def build(
         candidate_rows.append(candidate)
         candidates_by_key[(section_code, entity_kind, entity_hash)] = candidate
 
-        for row in occurrences[:max_evidence_per_candidate]:
+        evidence_sample = sample_evidence_occurrences(occurrences, object_to_cohort, max_evidence_per_candidate)
+        for row in evidence_sample:
             evidence_rows.append(
                 {
                     "candidate_id": cid,
@@ -425,6 +473,8 @@ def build(
                 "text_all_residual_ratio": round_float(ratio(all_total - all_matched, all_total)),
                 "expected_org_text_occurrence_count": sum(expected.values()),
                 "foreign_org_text_occurrence_count": sum(foreign.values()),
+                "segment_org_text_conformance_ratio": round_float(ratio(expected["text_segment"], segment_matched)),
+                "shingle_org_text_conformance_ratio": round_float(ratio(expected["text_word_shingle"], shingle_matched)),
                 "org_text_conformance_ratio": round_float(ratio(sum(expected.values()), all_matched)),
                 "foreign_org_text_ratio": round_float(ratio(sum(foreign.values()), all_matched)),
                 "copy_review_needed_occurrence_count": sum(borrowing.values()),
@@ -483,6 +533,7 @@ def build(
             "org_object_counts",
             "org_occurrence_counts",
             "uc3_signal_status",
+            "copy_review_max_section_df_ratio",
             "token_count_mode",
             "char_count_mode",
             "triviality_status",
@@ -545,6 +596,8 @@ def build(
             "text_all_residual_ratio",
             "expected_org_text_occurrence_count",
             "foreign_org_text_occurrence_count",
+            "segment_org_text_conformance_ratio",
+            "shingle_org_text_conformance_ratio",
             "org_text_conformance_ratio",
             "foreign_org_text_ratio",
             "copy_review_needed_occurrence_count",
@@ -598,6 +651,7 @@ def build(
             "min_segment_chars": min_segment_chars,
             "shingle_size": shingle_size,
             "max_evidence_per_candidate": max_evidence_per_candidate,
+            "copy_review_max_section_df_ratio": copy_review_max_section_df_ratio,
             "cohorts": {name: str(path) for name, path in cohorts},
             "cohort_object_counts": cohort_object_counts,
             "document_count": len(documents),
@@ -635,7 +689,8 @@ def build(
                 "v0 promotes exact text_segment and text_word_shingle hashes repeated in at least min_objects distinct objects.",
                 "text_segment is the primary interpretability signal; text_word_shingle is a phrase-reuse signal.",
                 "short text segments are kept as diagnostic_trivial instead of being silently removed.",
-                "normative_text means exact text is common across cohorts; cross_org_text_bridge means exact cross-org text needs copy/normative review.",
+                "normative_text means exact text is common across cohorts or too frequent for copy-review.",
+                "cross_org_text_bridge is reserved for rare cross-org exact text and needs copy/normative review.",
                 "coverage is exact-text-hash-only and must not be read as semantic originality.",
                 "cohort labels are applied after extraction and do not change text hashes.",
             ],
@@ -654,6 +709,12 @@ def main() -> None:
     parser.add_argument("--shingle-size", type=int, default=5)
     parser.add_argument("--max-evidence-per-candidate", type=int, default=20)
     parser.add_argument(
+        "--copy-review-max-section-df-ratio",
+        type=float,
+        default=0.25,
+        help="Cross-org exact text is copy-review only at or below this same-section document-frequency ratio.",
+    )
+    parser.add_argument(
         "--cohort",
         type=parse_cohort,
         action="append",
@@ -671,6 +732,7 @@ def main() -> None:
         args.min_segment_chars,
         args.shingle_size,
         args.max_evidence_per_candidate,
+        args.copy_review_max_section_df_ratio,
     )
 
 

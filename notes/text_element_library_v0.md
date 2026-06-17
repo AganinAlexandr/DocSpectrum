@@ -25,7 +25,8 @@ python E:\repos\DocSpectrum\tools\build_text_element_library_v0.py `
   --cohort RSPK=E:\output\DocSpectrum\export `
   --cohort NK=E:\output\DocSpectrum\export_nk_34_object_view `
   --min-objects 3 `
-  --max-evidence-per-candidate 20
+  --max-evidence-per-candidate 20 `
+  --copy-review-max-section-df-ratio 0.25
 ```
 
 Outputs:
@@ -51,12 +52,15 @@ Candidate classes:
 
 - `org_text_pattern` - exact text appears only inside one cohort;
 - `normative_text` - exact text is common across cohorts;
-- `cross_org_text_bridge` - exact cross-org text exists but is not common
-  enough to call normative.
+- `cross_org_text_bridge` - exact cross-org text exists, is not common enough
+  by organization balance, and is rare enough inside the section to deserve
+  UC3 review.
 
 For UC3, `cross_org_text_bridge` gets `uc3_signal_status =
 copy_review_needed`, not `borrowing_candidate`. This is intentionally cautious:
 project documentation contains many normative and boilerplate text fragments.
+Frequent cross-org text is overridden to `normative_text` even when its
+organization distribution is slightly unbalanced.
 
 ## Run Summary
 
@@ -68,10 +72,12 @@ candidates: 43 740
 evidence rows: 598 437
 coverage rows: 474
 skipped groups below min_objects: 46 636
+copy-review max same-section DF ratio: 0.25
 ```
 
 Evidence is sampled per candidate (`max_evidence_per_candidate = 20`); full
-occurrence counts remain in candidate rows.
+occurrence counts remain in candidate rows. The sample is cohort-aware so a
+cross-org candidate exposes evidence from both sides when available.
 
 Candidate kinds:
 
@@ -84,8 +90,8 @@ Candidate classes:
 
 ```text
 org_text_pattern        36 355
-normative_text           4 139
-cross_org_text_bridge    3 246
+normative_text           7 135
+cross_org_text_bridge      250
 ```
 
 Candidate statuses:
@@ -122,19 +128,22 @@ NK    0.3612
 RSPK  0.3174
 ```
 
-Cross-org exact-text bridges are common:
+The initial no-rarity version over-flagged cross-org bridges because many
+near-universal boilerplate phrases had slightly unbalanced organization ratios.
+After the rarity guard:
 
 ```text
-documents with copy_review_needed occurrences: 439 / 474
+cross_org_text_bridge candidates: 250
+documents with copy_review_needed occurrences: 123 / 474
+max copy_review_needed occurrences in one document: 52
 documents with foreign_org_text_ratio > 0.05: 68 / 474
-max foreign_org_text_ratio: 0.3692
 ```
 
 Interpretation:
 
 - the text layer is much denser than table forms;
 - exact text bridges are expected in normative/boilerplate documentation;
-- these bridges are review signals, not proof of copying;
+- rare cross-org bridges are review signals, not proof of copying;
 - text coverage helps UC1a/UC1v, but final conclusions need IDF weighting,
   near-match and semantic layers.
 
@@ -147,6 +156,9 @@ This layer broadens the first consumer-facing report:
 - shingle coverage highlights phrase-level reuse but is boilerplate-prone;
 - residual means unexplained by the v0 exact-hash text library, not proven
   original authorship.
+
+Headline product coverage should use `text_segment` first. `text_all` is useful
+as a combined diagnostic but is inflated by saturated shingle coverage.
 
 The safe product wording for v0:
 
@@ -164,7 +176,8 @@ copied / original / author proven
 
 - Exact text hashes are brittle to small edits.
 - Shingle coverage is highly saturated.
-- `cross_org_text_bridge` needs normative filtering and near-match context.
+- `cross_org_text_bridge` has a rarity guard, but still needs normative
+  filtering and near-match context.
 - No embeddings or semantic similarity are used.
 - Evidence is sampled, not exhaustive.
 - Encoding issues in source PDFs can affect text hashes; this remains a known
