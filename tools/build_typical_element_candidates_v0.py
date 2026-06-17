@@ -155,12 +155,30 @@ def classify_org_distinctiveness(org_object_counts: Counter[str], section_org_co
     return org_class, dominant_org, dominant_count, dominant_ratio, second_ratio, delta
 
 
+def derive_candidate_class(org_scope: str, content_variability: str) -> str:
+    if org_scope == "cross_org" and content_variability in {"same_content", "mostly_same_content"}:
+        return "borrowing_candidate"
+    return "typical_form"
+
+
+def classify_triviality(row_count: int, column_count: int, cell_count: int, min_meaningful_cells: int) -> tuple[str, str]:
+    reasons = []
+    if cell_count < min_meaningful_cells:
+        reasons.append(f"cell_count<{min_meaningful_cells}")
+    if row_count <= 1 or column_count <= 1:
+        reasons.append("one_dimensional_table")
+    if reasons:
+        return "trivial_micro_form", "|".join(reasons)
+    return "meaningful_form", ""
+
+
 def build(
     base_dir: Path,
     export_root: Path,
     output_dir: Path,
     cohorts: list[tuple[str, Path]],
     min_objects: int,
+    min_meaningful_cells: int,
 ) -> None:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     object_to_cohort, cohort_object_counts = load_object_cohorts(cohorts)
@@ -217,27 +235,40 @@ def build(
         recurrence_object_ratio = len(objects) / max(1, section_object_count)
         recurrence_document_ratio = len(docs) / max(1, section_document_count)
         section_idf = math.log((section_document_count + 1) / (len(docs) + 1)) + 1.0
-        candidate_status = "candidate"
+        row_count_mode = safe_int(row_counts.most_common(1)[0][0] if row_counts else 0)
+        column_count_mode = safe_int(column_counts.most_common(1)[0][0] if column_counts else 0)
+        cell_count_mode = safe_int(cell_counts.most_common(1)[0][0] if cell_counts else 0)
+        org_scope = "cross_org" if len(org_object_counts) > 1 else "single_org"
+        candidate_class = derive_candidate_class(org_scope, content_variability)
+        triviality_status, triviality_reason = classify_triviality(
+            row_count_mode,
+            column_count_mode,
+            cell_count_mode,
+            min_meaningful_cells,
+        )
+        candidate_status = "diagnostic_trivial" if triviality_status == "trivial_micro_form" else "candidate"
         reliability_note = "table_layout_signature_exact; near_match_pending"
         if content_variability == "stable_form_variable_content":
             reliability_note += "; stable_form_variable_content"
         elif content_variability in {"same_content", "mostly_same_content"}:
             reliability_note += "; content_reuse_check"
+        if triviality_status == "trivial_micro_form":
+            reliability_note += "; trivial_micro_form"
 
         candidate_rows.append(
             {
                 "candidate_id": cid,
                 "schema_version": "typical_element_candidate_v0",
-                "candidate_class": "typical_form",
+                "candidate_class": candidate_class,
                 "candidate_kind": "table_layout_form",
                 "candidate_subclass": "table_form_candidate",
                 "section_code": section_code,
                 "primary_entity_kind": "table_layout_signature",
                 "signature_group_hash": layout_signature,
                 "signature_group": f"table_layout_signature:{layout_signature}",
-                "row_count_mode": row_counts.most_common(1)[0][0] if row_counts else "",
-                "column_count_mode": column_counts.most_common(1)[0][0] if column_counts else "",
-                "cell_count_mode": cell_counts.most_common(1)[0][0] if cell_counts else "",
+                "row_count_mode": row_count_mode,
+                "column_count_mode": column_count_mode,
+                "cell_count_mode": cell_count_mode,
                 "recurrence_object_count": len(objects),
                 "recurrence_document_count": len(docs),
                 "occurrence_count": len(occurrences),
@@ -246,7 +277,7 @@ def build(
                 "coverage_object_ratio": round_float(recurrence_object_ratio),
                 "coverage_document_ratio": round_float(recurrence_document_ratio),
                 "section_idf": round_float(section_idf),
-                "org_scope": "cross_org" if len(org_object_counts) > 1 else "single_org",
+                "org_scope": org_scope,
                 "org_distinctiveness_class": org_class,
                 "dominant_org": dominant_org,
                 "dominant_org_object_count": dominant_count,
@@ -260,6 +291,8 @@ def build(
                 "dominant_content_signature_ratio": round_float(
                     max(content_counts.values()) / max(1, len(occurrences)) if content_counts else 0.0
                 ),
+                "triviality_status": triviality_status,
+                "triviality_reason": triviality_reason,
                 "near_match_status": "not_evaluated",
                 "candidate_status": candidate_status,
                 "reliability_note": reliability_note,
@@ -349,6 +382,8 @@ def build(
             "content_variability",
             "content_signature_unique_count",
             "dominant_content_signature_ratio",
+            "triviality_status",
+            "triviality_reason",
             "near_match_status",
             "candidate_status",
             "reliability_note",
@@ -383,6 +418,9 @@ def build(
         ],
     )
     class_counts = Counter(row["org_distinctiveness_class"] for row in candidate_rows)
+    candidate_class_counts = Counter(row["candidate_class"] for row in candidate_rows)
+    status_counts = Counter(row["candidate_status"] for row in candidate_rows)
+    triviality_counts = Counter(row["triviality_status"] for row in candidate_rows)
     section_counts = Counter(row["section_code"] for row in candidate_rows)
     write_json(
         output_dir / "typical_element_candidates_v0.json",
@@ -393,6 +431,7 @@ def build(
             "export_root": str(export_root),
             "output_dir": str(output_dir),
             "min_objects": min_objects,
+            "min_meaningful_cells": min_meaningful_cells,
             "cohorts": {name: str(path) for name, path in cohorts},
             "cohort_object_counts": cohort_object_counts,
             "candidate_count": len(candidate_rows),
@@ -400,6 +439,9 @@ def build(
             "table_cell_hash_cache_document_count": len(cell_hash_cache),
             "skipped_layout_groups_below_min_objects": skipped_small,
             "section_candidate_counts": dict(sorted(section_counts.items())),
+            "candidate_class_counts": dict(sorted(candidate_class_counts.items())),
+            "candidate_status_counts": dict(sorted(status_counts.items())),
+            "triviality_counts": dict(sorted(triviality_counts.items())),
             "org_distinctiveness_counts": dict(sorted(class_counts.items())),
             "files": {
                 "candidates": "typical_element_candidates_v0.csv",
@@ -411,6 +453,8 @@ def build(
                 "candidate rows stay thin; per-occurrence locations and cell hashes are in evidence rows.",
                 "coverage is counted by distinct objects/documents, not raw occurrences, to stay size-aware.",
                 "org-distinctiveness is computed after candidate extraction and does not affect core extraction.",
+                "candidate_class is derived from org scope and content variability; cross-org same-content forms become borrowing candidates.",
+                "micro-forms are kept as diagnostic rows and flagged instead of being silently filtered out.",
                 "near-match is not evaluated in v0 and remains a critical follow-up.",
             ],
         },
@@ -423,6 +467,7 @@ def main() -> None:
     parser.add_argument("--export-root", type=Path, default=DEFAULT_EXPORT_ROOT)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--min-objects", type=int, default=3)
+    parser.add_argument("--min-meaningful-cells", type=int, default=6)
     parser.add_argument(
         "--cohort",
         type=parse_cohort,
@@ -431,7 +476,7 @@ def main() -> None:
         help="Cohort in NAME=EXPORT_ROOT format. Repeat for each organization/cohort.",
     )
     args = parser.parse_args()
-    build(args.base_dir, args.export_root, args.output_dir, args.cohort, args.min_objects)
+    build(args.base_dir, args.export_root, args.output_dir, args.cohort, args.min_objects, args.min_meaningful_cells)
 
 
 if __name__ == "__main__":

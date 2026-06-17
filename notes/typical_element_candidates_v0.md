@@ -76,6 +76,10 @@ Candidate columns include:
   organization, per-org object and occurrence counts;
 - content variability: whether the form is paired with stable or varying table
   content;
+- derived candidate class: cross-organization same/mostly-same content is
+  raised to `borrowing_candidate`, otherwise the row stays `typical_form`;
+- triviality status: very small table forms are kept, but marked as diagnostic
+  micro-forms;
 - near-match status: currently `not_evaluated`.
 
 Evidence rows include object, bundle, page, table id, layout/content hashes,
@@ -111,6 +115,20 @@ cross_org_common   7
 org_distinctive    2
 org_specific     522
 ```
+
+After the candidate-class/triviality refinement:
+
+```text
+typical_form       531
+borrowing_candidate 0
+
+meaningful_form       426
+trivial_micro_form    105
+```
+
+This confirms the negative borrowing control for RSPK vs NK at the exact table
+form/content level, while also keeping 105 small stamp-like forms out of the
+main candidate surface.
 
 ## IOS5.4.1 Seed
 
@@ -160,11 +178,63 @@ form coverage != copied content != original residual
 Using organization templates is normal. Suspicious copying starts when the
 non-template residual or content-level signatures match too strongly.
 
+## Section Coverage
+
+The candidate catalog is only the first half of the user-facing workflow. The
+second half is a section-level projection:
+
+```powershell
+python E:\repos\DocSpectrum\tools\build_typical_element_coverage_v0.py `
+  --base-dir E:\output\DocSpectrum\element_base_v0_rpsk35_nk34 `
+  --candidate-dir E:\output\DocSpectrum\typical_element_candidates_v0 `
+  --output-dir E:\output\DocSpectrum\typical_element_coverage_v0 `
+  --cohort RSPK=E:\output\DocSpectrum\export `
+  --cohort NK=E:\output\DocSpectrum\export_nk_34_object_view
+```
+
+Output:
+
+```text
+E:\output\DocSpectrum\typical_element_coverage_v0\typical_element_section_coverage_v0.csv
+```
+
+This report answers the first practical questions for each section document:
+
+- how much of the table layer is explained by meaningful typical forms;
+- how much remains unexplained by the v0 table-form library;
+- how much of the matched form layer is expected for the document organization;
+- whether foreign organization-specific forms or borrowing candidates appear.
+
+The residual is deliberately named as library-unexplained, not as proven
+original authorship. Proving originality needs more layers: text, graphics,
+near-match, and eventually executor-level ground truth.
+
+First median table-form coverage ratios:
+
+```text
+АР        0.5000
+ИД        0.8966
+ИОС5.1    0.6818
+ИОС5.4.1  0.7143
+ИОС5.5.1  0.4615
+КР        0.6000
+ПОКР      0.9667
+ПОС       0.5903
+СМ        0.2222
+```
+
+The v0 conformance ratio is 1.0 across sections in this corpus because the
+matched meaningful forms are either common or aligned with the document cohort.
+That is expected for the current RSPK/NK negative-control setup: no foreign
+organization-specific exact table forms were found in the main coverage layer.
+
 ## Known Limits
 
 - v0 uses exact `table_layout_signature`; near-match is not implemented yet.
 - whole-page, vector, image, and text-only candidates are not promoted here.
 - content variability is based on exact `table_content_sha1`, not near-content.
+- section coverage is table-form-only and does not measure full section
+  originality.
 - organization labels are currently limited to RSPK and NK cohort roots.
 - many `org_specific` candidates are valid diagnostics, but not all are ready
   to become user-facing library elements without ranking and review.
