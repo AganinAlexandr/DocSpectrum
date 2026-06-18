@@ -51,6 +51,16 @@ The review-sheet generator preserves these values by `candidate_id` when it is
 rebuilt. The opaque candidate ID remains a join key and is not intended to be
 interpreted by a person.
 
+For actual review, two smaller interfaces are generated:
+
+- `E:/commons/DocSpectrum/page_near_match_first30_compact_v0.csv` - exactly
+  `30` data rows, one line per pair, with short single-line excerpts;
+- `E:/commons/DocSpectrum/page_near_match_first30_review_v0.html` - one pair
+  per card, two PDF pages, concise evidence, decision controls and CSV export.
+
+The full-text CSV is evidence/debug input and should not be used as the primary
+manual-review interface.
+
 ## Review Queue
 
 The joined queue is generated at:
