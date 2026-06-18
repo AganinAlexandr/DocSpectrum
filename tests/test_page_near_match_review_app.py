@@ -63,6 +63,7 @@ class PageNearMatchReviewAppTests(unittest.TestCase):
             self.assertIn("candidate-1", html_text)
             self.assertIn("Возможное заимствование", html_text)
             self.assertIn("file:///E:/left.pdf#page=2", html_text)
+            self.assertIn("candidates.length", html_text)
 
 
 if __name__ == "__main__":

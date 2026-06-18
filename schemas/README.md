@@ -13,3 +13,4 @@
 
 - [section_passport_model.md](./section_passport_model.md) - логическая модель `паспорта раздела`
 - [comparison_result_model.md](./comparison_result_model.md) - логическая модель `результата сравнения`
+- [provenance_assessment_model.md](./provenance_assessment_model.md) - слой авторства и источника до интерпретации заимствования

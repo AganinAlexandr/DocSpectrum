@@ -224,7 +224,7 @@ textarea {{ min-height:76px; resize:vertical; }}
 </head>
 <body>
 <header>
-  <h1>DocSpectrum · 30 пар для калибровки</h1>
+  <h1 id="appTitle">DocSpectrum · экспертная проверка</h1>
   <button id="prev">← Предыдущая</button>
   <button id="next">Следующая →</button>
   <button id="nextPending">Следующая без решения</button>
@@ -261,7 +261,7 @@ textarea {{ min-height:76px; resize:vertical; }}
 </main>
 <script>
 const candidates={data};
-const storageKey="docspectrum-near-match-first30-v0";
+const storageKey="docspectrum-near-match-review-v0-"+candidates.length+"-"+candidates[0].candidateId;
 let saved=JSON.parse(localStorage.getItem(storageKey)||"{{}}");
 let index=0;
 const $=id=>document.getElementById(id);
@@ -277,6 +277,7 @@ function saveCurrent(){{
 function list(id,values){{$(id).innerHTML=(values.length?values:["—"]).map(v=>`<li>${{esc(v)}}</li>`).join("");}}
 function render(){{
  const c=candidates[index],v=valueFor(c);
+ $("appTitle").textContent=`DocSpectrum · ${{candidates.length}} пар для проверки`;
  $("progress").textContent=`Пара ${{index+1}} из ${{candidates.length}} · размечено ${{candidates.filter(x=>valueFor(x).label).length}}`;
  $("pairTitle").textContent=`${{c.section}} · ${{c.left.organization}} / ${{c.right.organization}}`;
  $("chips").innerHTML=[
