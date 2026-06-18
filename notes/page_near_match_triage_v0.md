@@ -28,7 +28,7 @@ reviewer.
 
 The human-readable first calibration batch is:
 
-`E:/commons/DocSpectrum/page_near_match_first30_review_v0.csv`
+`E:/commons/DocSpectrum/page_near_match_first30_evidence_v0.csv`
 
 This file places the decision fields beside:
 

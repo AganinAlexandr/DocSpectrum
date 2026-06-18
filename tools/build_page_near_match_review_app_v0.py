@@ -13,7 +13,7 @@ from urllib.parse import quote
 
 
 DEFAULT_REVIEW = Path(
-    r"E:\commons\DocSpectrum\page_near_match_first30_review_v0.csv"
+    r"E:\commons\DocSpectrum\page_near_match_first30_evidence_v0.csv"
 )
 DEFAULT_COMPACT = Path(
     r"E:\commons\DocSpectrum\page_near_match_first30_compact_v0.csv"
@@ -227,6 +227,7 @@ textarea {{ min-height:76px; resize:vertical; }}
   <h1>DocSpectrum · 30 пар для калибровки</h1>
   <button id="prev">← Предыдущая</button>
   <button id="next">Следующая →</button>
+  <button id="nextPending">Следующая без решения</button>
   <button class="primary" id="export">Выгрузить разметку CSV</button>
   <span class="progress" id="progress"></span>
 </header>
@@ -293,6 +294,13 @@ function render(){{
  $("next").disabled=$("nextBottom").disabled=index===candidates.length-1;
 }}
 function move(delta){{saveCurrent();index=Math.max(0,Math.min(candidates.length-1,index+delta));render();}}
+function movePending(){{
+ saveCurrent();
+ for(let offset=1;offset<=candidates.length;offset++){{
+  const candidateIndex=(index+offset)%candidates.length;
+  if(!valueFor(candidates[candidateIndex]).label){{index=candidateIndex;render();return;}}
+ }}
+}}
 function csvCell(v){{return '"'+String(v??"").replaceAll('"','""').replaceAll("\\n"," ")+'"';}}
 function exportCsv(){{
  saveCurrent();
@@ -304,8 +312,11 @@ function exportCsv(){{
 }}
 $("prev").onclick=$("prevBottom").onclick=()=>move(-1);
 $("next").onclick=$("nextBottom").onclick=()=>move(1);
+$("nextPending").onclick=movePending;
 $("export").onclick=exportCsv;
 for(const id of ["label","confidence","reviewer","note"])$(id).onchange=saveCurrent;
+const firstPending=candidates.findIndex(candidate=>!valueFor(candidate).label);
+if(firstPending>=0)index=firstPending;
 render();
 </script>
 </body>

@@ -18,7 +18,7 @@ DEFAULT_EXPORT_ROOT = Path(
     r"E:\output\DocSpectrum\export_rpsk35_nk34_object_view"
 )
 DEFAULT_OUTPUT = Path(
-    r"E:\commons\DocSpectrum\page_near_match_first30_review_v0.csv"
+    r"E:\commons\DocSpectrum\page_near_match_first30_evidence_v0.csv"
 )
 REVIEW_FIELDS = [
     "review_label",
@@ -121,14 +121,15 @@ def build(queue_path: Path, export_root: Path, output_path: Path, batch_size: in
         output_rows.append(
             {
                 "review_rank": row["review_rank"],
-                "review_label": previous.get("review_label", row.get("review_label", "")),
-                "review_confidence": previous.get(
-                    "review_confidence",
-                    row.get("review_confidence", ""),
-                ),
-                "reviewer": previous.get("reviewer", row.get("reviewer", "")),
-                "review_note": previous.get("review_note", row.get("review_note", "")),
-                "reviewed_at": previous.get("reviewed_at", row.get("reviewed_at", "")),
+                "review_label": previous.get("review_label")
+                or row.get("review_label", ""),
+                "review_confidence": previous.get("review_confidence")
+                or row.get("review_confidence", ""),
+                "reviewer": previous.get("reviewer") or row.get("reviewer", ""),
+                "review_note": previous.get("review_note")
+                or row.get("review_note", ""),
+                "reviewed_at": previous.get("reviewed_at")
+                or row.get("reviewed_at", ""),
                 "candidate_id": row["candidate_id"],
                 "candidate_strength": row["candidate_strength"],
                 "left_object": row["left_object_id"],
