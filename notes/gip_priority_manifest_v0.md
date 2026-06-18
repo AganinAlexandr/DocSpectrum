@@ -54,6 +54,20 @@ All 46 archive directories exist. At manifest build time:
 The objects therefore require extraction/unpacking and explorer exports before
 title organization/GIP ground truth can be collected.
 
+## Readiness update
+
+All 46 source directories are now unpacked and all 46 selected `KR` files have
+complete explorer exports. The earlier archive-only/empty-directory state
+above is historical preparation metadata.
+
+Confirmed pre-expertise directories:
+
+- `1823_25`: `01_Documentation/Documentation` (the nested confirmed source);
+- `1825_25`: `01_Documentation` (the confirmed pre-expertise source).
+
+Title extraction and reconciliation results are documented in
+`notes/title_authorship_v0.md`.
+
 ## Known registry discrepancy
 
 Object `1690_25` belongs to the human-designed StroyMontazh/Efimov pitched-roof
@@ -72,7 +86,18 @@ Generated under `E:/output/DocSpectrum/gip_priority_manifest_v0`:
 
 ## Ground-truth rule
 
-For every selected section:
+Authorship extraction and handwriting analysis use separate source roles:
+
+- `authorship_source_pdf` - one representative section selected by priority
+  `КР -> ПОКР/ПОС -> АР`;
+- `analysis_target_pdf` - the comparable section used in the factor experiment
+  (`КР` for the current roof/facade/balcony/foundation corpus).
+
+Normally the selected `КР` serves both roles. If `КР` is absent, authorship
+metadata comes from `ПОКР/ПОС`, then `АР`, without removing the object from the
+GIP corpus.
+
+For every selected object:
 
 1. run the shared title-zone detector;
 2. extract all organization/GIP pairs from detected title pages;
