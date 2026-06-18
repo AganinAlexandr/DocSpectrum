@@ -19,22 +19,37 @@ The triage layer separates:
 
 ## Stable Human Input
 
-The canonical editable file is:
+The compact canonical label store is:
 
 `E:/commons/DocSpectrum/page_near_match_triage_labels_v0.csv`
 
-It contains only:
+It is intentionally machine-oriented and is not the file presented to the
+reviewer.
 
-- `candidate_id`;
+The human-readable first calibration batch is:
+
+`E:/commons/DocSpectrum/page_near_match_first30_review_v0.csv`
+
+This file places the decision fields beside:
+
+- both object and PDF names;
+- both page numbers and PDF paths;
+- structural and text-overlap metrics;
+- shared text;
+- text unique to each page;
+- the full extracted text of each page.
+
+The reviewer fills only:
+
 - `review_label`;
 - `review_confidence`;
 - `reviewer`;
 - `review_note`;
 - `reviewed_at`.
 
-The generator preserves existing values by `candidate_id` and adds new
-candidates with empty labels. Generated output never becomes the source of
-truth for human decisions.
+The review-sheet generator preserves these values by `candidate_id` when it is
+rebuilt. The opaque candidate ID remains a join key and is not intended to be
+interpreted by a person.
 
 ## Review Queue
 
