@@ -96,7 +96,7 @@ def mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
 
 
-EXCLUDED_SECTIONS_CANON = frozenset({"UNKNOWN", "\u041f\u0417"})
+EXCLUDED_SECTIONS_CANON = frozenset({"UNKNOWN", "\u041f\u0417", "\u0418\u0414"})
 
 
 def include_section(section_code: str, excluded_sections: set[str]) -> bool:

@@ -214,10 +214,12 @@ def test_cross_object_pairs_never_compares_versions_of_same_object() -> None:
     assert all(left["object_id"] != right["object_id"] for left, right in pairs)
 
 
-def test_include_section_excludes_pz_and_unknown() -> None:
-    excluded = {"UNKNOWN", "ПЗ"}
+def test_include_section_excludes_non_authorial_modeling_sections() -> None:
+    excluded = {"UNKNOWN", "ПЗ", "ИД"}
 
     assert include_section("КР", excluded) is True
     assert include_section("ПОС", excluded) is True
+    assert include_section("СМ", excluded) is True
     assert include_section("ПЗ", excluded) is False
+    assert include_section("ИД", excluded) is False
     assert include_section("UNKNOWN", excluded) is False
