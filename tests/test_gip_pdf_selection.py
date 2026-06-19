@@ -10,16 +10,21 @@ sys.path.insert(0, str(TOOLS_DIR))
 from build_gip_pdf_selection_v0 import (  # noqa: E402
     crc32_file,
     is_target_kr,
+    section_code,
     select_analysis_pdf,
     select_authorship_section,
 )
 
 
 class GipPdfSelectionTests(unittest.TestCase):
-    def test_target_selector_excludes_iul_and_pokr(self) -> None:
+    def test_target_selector_excludes_iul_and_pos_alias(self) -> None:
         self.assertTrue(is_target_kr(Path("Раздел ПД №4 X-КР.pdf")))
         self.assertFalse(is_target_kr(Path("ИУЛ КР.pdf")))
         self.assertFalse(is_target_kr(Path("Раздел ПОКР.pdf")))
+
+    def test_section_code_maps_pokr_to_pos(self) -> None:
+        self.assertEqual(section_code(Path("Раздел ПОС.pdf")), "ПОС")
+        self.assertEqual(section_code(Path("Раздел ПОКР.pdf")), "ПОС")
 
     def test_selects_pre_expertise_from_multiple_versions(self) -> None:
         paths = [
@@ -30,16 +35,15 @@ class GipPdfSelectionTests(unittest.TestCase):
         self.assertIn("Документация на проверку", str(selected))
         self.assertEqual(rule, "pre_expertise_version")
 
-    def test_authorship_priority_kr_then_pokr_then_ar(self) -> None:
+    def test_authorship_priority_kr_then_pos_then_ar(self) -> None:
         code, path, _rule = select_authorship_section(
             {
                 "КР": [],
-                "ПОКР": [Path("x-ПОКР.pdf")],
-                "ПОС": [],
+                "ПОС": [Path("x-ПОКР.pdf")],
                 "АР": [Path("x-АР.pdf")],
             }
         )
-        self.assertEqual(code, "ПОКР")
+        self.assertEqual(code, "ПОС")
         self.assertEqual(path.name, "x-ПОКР.pdf")
 
     def test_crc32_is_stable(self) -> None:

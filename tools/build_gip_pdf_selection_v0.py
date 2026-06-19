@@ -24,7 +24,7 @@ DEFAULT_ANALYSIS_STAGING_DIR = Path(
 DEFAULT_AUTHORSHIP_STAGING_DIR = Path(
     r"E:\output\DocSpectrum\gip_priority_authorship_pdf_input_v0"
 )
-AUTHORSHIP_PRIORITY = ("КР", "ПОКР", "ПОС", "АР")
+AUTHORSHIP_PRIORITY = ("КР", "ПОС", "АР")
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -56,11 +56,19 @@ def section_code(path: Path) -> str | None:
     name = path.stem
     if re.search(r"ИУЛ", name, flags=re.IGNORECASE):
         return None
-    for code in ("ПОКР", "ПОС", "АР", "КР"):
-        if re.search(
-            rf"(^|[\s._№-]){code}($|[\s._№-])",
-            name,
-            flags=re.IGNORECASE,
+    patterns = (
+        ("ПОС", ("ПОС", "ПОКР")),
+        ("АР", ("АР",)),
+        ("КР", ("КР",)),
+    )
+    for code, markers in patterns:
+        if any(
+            re.search(
+                rf"(^|[\s._№-]){marker}($|[\s._№-])",
+                name,
+                flags=re.IGNORECASE,
+            )
+            for marker in markers
         ):
             return code
     return None
@@ -90,7 +98,7 @@ def select_authorship_section(
         if paths:
             selected, version_rule = select_analysis_pdf(paths)
             return code, selected, f"priority_{code.lower()}|{version_rule}"
-    raise ValueError("No authorship source section found (КР/ПОКР/ПОС/АР)")
+    raise ValueError("No authorship source section found (КР/ПОС/АР)")
 
 
 def build(

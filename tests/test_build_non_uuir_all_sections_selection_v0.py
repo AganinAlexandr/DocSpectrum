@@ -55,6 +55,7 @@ class NonUuirAllSectionsSelectionTests(unittest.TestCase):
     def test_infers_section_code(self) -> None:
         self.assertEqual(infer_section_code("Раздел №4 КР.pdf"), "КР")
         self.assertEqual(infer_section_code("Раздел №7 ПОС.pdf"), "ПОС")
+        self.assertEqual(infer_section_code("Раздел №7 ПОКР.pdf"), "ПОС")
         self.assertEqual(infer_section_code("Пояснительная записка.pdf"), "ПЗ")
 
 

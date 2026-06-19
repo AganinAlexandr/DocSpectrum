@@ -14,9 +14,10 @@ from build_title_authorship_range_v0 import (  # noqa: E402
 
 
 class TitleAuthorshipRangeTests(unittest.TestCase):
-    def test_section_code_accepts_comma_boundary_and_excludes_iul(self) -> None:
+    def test_section_code_accepts_comma_boundary_and_maps_pokr_to_pos(self) -> None:
         self.assertEqual(section_code(Path("Раздел 4,КР.pdf")), "КР")
-        self.assertEqual(section_code(Path("Раздел 7-ПОКР.pdf")), "ПОКР")
+        self.assertEqual(section_code(Path("Раздел 7-ПОС.pdf")), "ПОС")
+        self.assertEqual(section_code(Path("Раздел 7-ПОКР.pdf")), "ПОС")
         self.assertIsNone(section_code(Path("ИУЛ к Разделу 4 - КР.pdf")))
 
     def test_selects_single_duplicate_and_any_version_for_identity(self) -> None:

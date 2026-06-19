@@ -22,7 +22,7 @@ DEFAULT_OUTPUT_DIR = Path(
 DEFAULT_STAGING_DIR = Path(
     r"E:\output\DocSpectrum\title_authorship_range_1800_1883_pdf_input_v0"
 )
-SECTION_PRIORITY = ("КР", "ПОКР", "ПОС", "АР")
+SECTION_PRIORITY = ("КР", "ПОС", "АР")
 OBJECT_RE = re.compile(r"^(?P<number>\d{4})_25(?:\D|$)")
 
 
@@ -46,11 +46,19 @@ def section_code(path: Path) -> str | None:
     name = path.stem
     if re.search(r"ИУЛ", name, flags=re.IGNORECASE):
         return None
-    for code in SECTION_PRIORITY:
-        if re.search(
-            rf"(?<![А-ЯЁA-Z0-9]){code}(?![А-ЯЁA-Z0-9])",
-            name,
-            flags=re.IGNORECASE,
+    patterns = (
+        ("КР", ("КР",)),
+        ("ПОС", ("ПОС", "ПОКР")),
+        ("АР", ("АР",)),
+    )
+    for code, markers in patterns:
+        if any(
+            re.search(
+                rf"(?<![А-ЯЁA-Z0-9]){marker}(?![А-ЯЁA-Z0-9])",
+                name,
+                flags=re.IGNORECASE,
+            )
+            for marker in markers
         ):
             return code
     return None
