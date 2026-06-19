@@ -29,6 +29,7 @@ DEFAULT_SECTIONS = Path(r"E:\output\DocSpectrum\gip_control_registry_v0\gip_cont
 DEFAULT_CELLS = Path(r"E:\output\DocSpectrum\gip_control_registry_v0\gip_control_cells_v0.csv")
 DEFAULT_EXPORT_ROOT = Path(r"E:\output\pdf-structure-explorer\exports")
 DEFAULT_OUTPUT_DIR = Path(r"E:\output\DocSpectrum\gip_control_baseline_v0_1")
+DEFAULT_EXCLUDED_SECTIONS = frozenset({"UNKNOWN", "ПЗ"})
 
 STYLE_RATIO_KEYS = (
     "page_count",
@@ -95,6 +96,13 @@ def round_float(value: float, digits: int = 4) -> float:
 
 def mean(values: list[float]) -> float:
     return sum(values) / len(values) if values else 0.0
+
+
+EXCLUDED_SECTIONS_CANON = frozenset({"UNKNOWN", "\u041f\u0417"})
+
+
+def include_section(section_code: str, excluded_sections: set[str]) -> bool:
+    return bool(section_code) and section_code not in excluded_sections
 
 
 def ratio_similarity(left: dict[str, float], right: dict[str, float], keys: tuple[str, ...]) -> float:
@@ -274,14 +282,26 @@ def summarize_metrics(rows: list[dict[str, Any]]) -> dict[str, float]:
     }
 
 
-def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: Path) -> dict[str, Any]:
+def build(
+    sections_path: Path,
+    cells_path: Path,
+    export_root: Path,
+    output_dir: Path,
+    excluded_sections: set[str],
+) -> dict[str, Any]:
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     sections = [
         row
         for row in read_csv(sections_path)
-        if row.get("authorship_status") == "ready" and row.get("section_code") != "UNKNOWN"
+        if row.get("authorship_status") == "ready"
+        and include_section(row.get("section_code", ""), excluded_sections)
     ]
-    cells = [row for row in read_csv(cells_path) if row.get("eligible_for_gip_control") == "True"]
+    cells = [
+        row
+        for row in read_csv(cells_path)
+        if row.get("eligible_for_gip_control") == "True"
+        and include_section(row.get("section_code", ""), excluded_sections)
+    ]
 
     sections_by_h1: dict[tuple[str, str, str], list[dict[str, str]]] = defaultdict(list)
     sections_by_h2: dict[tuple[str, str, str], list[dict[str, str]]] = defaultdict(list)
@@ -476,6 +496,7 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
             "cell_summary": "gip_control_cell_summary_v0.csv",
             "overall_summary": "gip_control_overall_summary_v0.csv",
         },
+        "excluded_sections": sorted(excluded_sections),
         "interpretation_note": (
             "v0.1 baseline; style headline=size-invariant composition, "
             "content headline=word-shingle near overlap; exact and mixed metrics "
@@ -492,8 +513,26 @@ def main() -> None:
     parser.add_argument("--cells", type=Path, default=DEFAULT_CELLS)
     parser.add_argument("--export-root", type=Path, default=DEFAULT_EXPORT_ROOT)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument(
+        "--exclude-section",
+        action="append",
+        default=list(EXCLUDED_SECTIONS_CANON),
+        help="Section code to exclude from GIP-control baseline. Repeatable.",
+    )
     args = parser.parse_args()
-    print(json.dumps(build(args.sections, args.cells, args.export_root, args.output_dir), ensure_ascii=False, indent=2))
+    print(
+        json.dumps(
+            build(
+                args.sections,
+                args.cells,
+                args.export_root,
+                args.output_dir,
+                {value for value in args.exclude_section if value},
+            ),
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ from build_gip_control_registry_v0 import (  # noqa: E402
     summarize_object_row,
 )
 from build_gip_control_baseline_v0 import summarize_metrics  # noqa: E402
+from build_gip_control_baseline_v0 import include_section  # noqa: E402
 
 
 def test_normalize_work_type_strips_wrappers() -> None:
@@ -160,3 +161,12 @@ def test_summarize_metrics_exposes_v0_1_headlines() -> None:
     assert metrics["style_composition_similarity_median_v0"] == 0.85
     assert metrics["content_similarity_median_v0"] == 0.15
     assert metrics["text_word_shingle_jaccard_median_v0"] == 0.25
+
+
+def test_include_section_excludes_pz_and_unknown() -> None:
+    excluded = {"UNKNOWN", "ПЗ"}
+
+    assert include_section("КР", excluded) is True
+    assert include_section("ПОС", excluded) is True
+    assert include_section("ПЗ", excluded) is False
+    assert include_section("UNKNOWN", excluded) is False
