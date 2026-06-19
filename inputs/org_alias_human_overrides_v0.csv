@@ -1,18 +1,18 @@
-﻿alias_id,organization_identity_hint,canonical_display_override,notes
-org_alias_v0_004,ватага,??????,confirmed_by_human_2026-06-19
-org_alias_v0_015,национальная инжиниринговая компания,??-??????????,confirmed_by_human_2026-06-19
-org_alias_v0_022,региональная строительная производственная компания,????,confirmed_by_human_2026-06-19
-org_alias_v0_031,специализированный застройщик «русстройгруп,?????????????,confirmed_by_human_2026-06-19
-org_alias_v0_040,сфера,?????,confirmed_by_human_2026-06-19
-org_alias_v0_001,ñï ñò òрîéèíâå åñò ãрóï ï,?? ??????????? ?????,confirmed_by_human_2026-06-19_round2
-org_alias_v0_002,ɋɬɪɨɣ ɇɨɧɬɚɠ ɋɉ,??????????? ??,confirmed_by_human_2026-06-19_round2
-org_alias_v0_011,люберецкий городской жилищный трест,????,confirmed_by_human_2026-06-19_round2
-org_alias_v0_012,межрегиональная ассоциация проектировщиков,??? ?????????????,confirmed_by_human_2026-06-19_round3
-org_alias_v0_016,общество с ограниченной ответственностью специализированный застройщик «русстройгруп,?????????????,confirmed_by_human_2026-06-19_round2
-org_alias_v0_017,объединение проектировщиков «проект сити,????????????????,confirmed_by_human_2026-06-19_round3
-org_alias_v0_020,проектирование дорог и инфраструктуры,????????????????,confirmed_by_human_2026-06-19_round3
-org_alias_v0_021,пск «столица,??? ???????,confirmed_by_human_2026-06-19_round2
-org_alias_v0_024,руспроектэксперт,????????????????,confirmed_by_human_2026-06-19_round2
-org_alias_v0_027,сп ст тройинвест групп,?? ??????????? ?????,confirmed_by_human_2026-06-19_round2
-org_alias_v0_030,специализированное управление «лифтреммонт и диспетчеризация,?? ?????,confirmed_by_human_2026-06-19_round2
-org_alias_v0_042,тиволион,????????,confirmed_by_human_2026-06-19_round2
+alias_id,organization_identity_hint,canonical_display_override,notes
+org_alias_v0_004,ватага,Ватага,confirmed_by_human_2026-06-19
+org_alias_v0_015,национальная инжиниринговая компания,НК-Инжениринг,confirmed_by_human_2026-06-19
+org_alias_v0_022,региональная строительная производственная компания,РСПК,confirmed_by_human_2026-06-19
+org_alias_v0_031,специализированный застройщик «русстройгруп,РусСтройГрупп,confirmed_by_human_2026-06-19
+org_alias_v0_040,сфера,Сфера,confirmed_by_human_2026-06-19
+org_alias_v0_001,ñï ñò òрîéèíâå åñò ãрóï ï,СП Стройинвест ГРУПП,confirmed_by_human_2026-06-19_round2
+org_alias_v0_002,ɋɬɪɨɣ ɇɨɧɬɚɠ ɋɉ,СтройМонтаж СП,confirmed_by_human_2026-06-19_round2
+org_alias_v0_011,люберецкий городской жилищный трест,ЛГЖТ,confirmed_by_human_2026-06-19_round2
+org_alias_v0_012,межрегиональная ассоциация проектировщиков,ООО Стройразвитие,confirmed_by_human_2026-06-19_round3
+org_alias_v0_016,общество с ограниченной ответственностью специализированный застройщик «русстройгруп,РусСтройГрупп,confirmed_by_human_2026-06-19_round2
+org_alias_v0_017,объединение проектировщиков «проект сити,СтройМонтажЦентр,confirmed_by_human_2026-06-19_round3
+org_alias_v0_020,проектирование дорог и инфраструктуры,ИнфраСтройИнтекс,confirmed_by_human_2026-06-19_round3
+org_alias_v0_021,пск «столица,ПСК Столица,confirmed_by_human_2026-06-19_round2
+org_alias_v0_024,руспроектэксперт,Руспроектэксперт,confirmed_by_human_2026-06-19_round2
+org_alias_v0_027,сп ст тройинвест групп,СП Стройинвест ГРУПП,confirmed_by_human_2026-06-19_round2
+org_alias_v0_030,специализированное управление «лифтреммонт и диспетчеризация,СУ ЛРМиД,confirmed_by_human_2026-06-19_round2
+org_alias_v0_042,тиволион,Тиволион,confirmed_by_human_2026-06-19_round2
