@@ -88,7 +88,11 @@ def select_version(paths: list[Path]) -> tuple[Path | None, str]:
     pre_expertise = [path for path in unique_paths if is_pre_expertise(path)]
     if len(pre_expertise) == 1:
         return pre_expertise[0], "pre_expertise_version"
-    return None, "ambiguous_multiple_versions"
+    # Версия раздела НЕ важна для идентификации ГИП (human 19-06; ср. заметку codex
+    # в T-018: "version choice is not material for identity extraction"). Поэтому при
+    # нескольких версиях берём одну детерминированно, а не пропускаем как ambiguous.
+    pool = pre_expertise or unique_paths
+    return sorted(pool)[0], "any_version_for_gip_identity"
 
 
 def object_directories(

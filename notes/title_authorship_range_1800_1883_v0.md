@@ -16,33 +16,29 @@ through PDF Structure Explorer before title-party extraction.
 
 - expected objects: 84;
 - source directories: 84;
-- selected PDFs: 83;
-- unique CRC32 values: 83;
-- selected sections: 79 `KR`, 4 `POKR`;
+- selected PDFs: 84;
+- unique CRC32 values: 84;
+- selected sections: 79 `KR`, 5 `POKR`;
 - explorer failures: 0;
-- title parties: 84 across 83 documents;
-- two-title documents: 82;
+- title parties: 85 across 84 documents;
+- two-title documents: 83;
 - four-title documents: 1.
-
-The remaining unavailable object is `1846_25`, whose directory currently has
-no PDF files.
 
 ## Subcontractor case
 
 Object `1869_25` contains four title pages. Pages 3-4 identify the effective
 subcontractor:
 
-- organization: `Спектр`;
-- GIP: `Егупов В. В`.
+- organization: `Spektr`;
+- GIP: `Egupov V. V`.
 
 ## Incremental addition
 
-Object `1830_25` became available after the first range run and was added
-without rerunning Explorer for the other objects:
+Objects `1830_25` and `1846_25` became available after the first range run and
+were added without rerunning Explorer for the other objects:
 
-- section: `KR`;
-- organization: `ООО ВИТМАР`;
-- GIP: `Савченков В.М`.
+- `1830_25`: `KR`, organization `OOO VITMAR`, GIP `Savchenkov V.M.`;
+- `1846_25`: `POKR`, organization `Stroy Montazh SP`, GIP `Loktev A.N.`.
 
 ## Outputs
 

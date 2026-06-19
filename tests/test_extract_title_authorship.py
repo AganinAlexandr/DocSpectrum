@@ -15,10 +15,12 @@ from extract_title_authorship_v0 import (  # noqa: E402
 
 
 class ExtractTitleAuthorshipTests(unittest.TestCase):
-    def test_groups_two_and_four_title_pages(self) -> None:
+    def test_groups_title_pages_by_lead_and_executor_rule(self) -> None:
         self.assertEqual(group_title_pages([1, 2]), [[1, 2]])
+        self.assertEqual(group_title_pages([1, 2, 3]), [[1, 2], [3]])
         self.assertEqual(group_title_pages([1, 2, 3, 4]), [[1, 2], [3, 4]])
-        self.assertEqual(group_title_pages([1, 3]), [[1, 3]])
+        self.assertEqual(group_title_pages([1, 2, 3, 4, 5]), [[1, 2], [3, 4, 5]])
+        self.assertEqual(group_title_pages([]), [])
 
     def test_extracts_organization_candidate(self) -> None:
         result = organization_candidates(

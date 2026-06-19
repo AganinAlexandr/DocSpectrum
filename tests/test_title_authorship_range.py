@@ -19,7 +19,7 @@ class TitleAuthorshipRangeTests(unittest.TestCase):
         self.assertEqual(section_code(Path("Раздел 7-ПОКР.pdf")), "ПОКР")
         self.assertIsNone(section_code(Path("ИУЛ к Разделу 4 - КР.pdf")))
 
-    def test_selects_single_and_rejects_distinct_ambiguous_versions(self) -> None:
+    def test_selects_single_duplicate_and_any_version_for_identity(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             first = root / "first.pdf"
@@ -32,8 +32,8 @@ class TitleAuthorshipRangeTests(unittest.TestCase):
             self.assertEqual(selected, duplicate if duplicate < first else first)
             self.assertEqual(rule, "duplicate_identical_content")
             selected, rule = select_version([first, other])
-            self.assertIsNone(selected)
-            self.assertEqual(rule, "ambiguous_multiple_versions")
+            self.assertEqual(selected, first)
+            self.assertEqual(rule, "any_version_for_gip_identity")
 
 
 if __name__ == "__main__":

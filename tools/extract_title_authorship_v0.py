@@ -86,12 +86,14 @@ def load_detector(path: Path):
 
 def group_title_pages(pages: list[int]) -> list[list[int]]:
     ordered = sorted(set(pages))
-    if len(ordered) in {2, 4} and all(
-        ordered[index + 1] == ordered[index] + 1
-        for index in range(0, len(ordered), 2)
-    ):
-        return [ordered[index : index + 2] for index in range(0, len(ordered), 2)]
-    return [ordered] if ordered else []
+    if not ordered:
+        return []
+    # Правило (human 19-06): Заказчик/Генподрядчик = первые 2 титула, исполнитель
+    # (реальный автор, HC-013) = ВСЁ остальное. Раньше 3-стр.зона (1;2;3) не делилась
+    # → субподрядчик терялся. Теперь при >2 страницах делим строго first-2 / rest.
+    if len(ordered) <= 2:
+        return [ordered]
+    return [ordered[:2], ordered[2:]]
 
 
 def visual_lines(bundle: Path, pages: list[int]) -> list[dict[str, Any]]:
