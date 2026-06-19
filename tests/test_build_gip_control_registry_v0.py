@@ -12,6 +12,8 @@ from build_gip_control_registry_v0 import (  # noqa: E402
     build_h1_cells,
     build_h2_cells,
     normalize_work_type,
+    organization_identity_keys,
+    resolve_organization_name,
     summarize_object_row,
 )
 from build_gip_control_baseline_v0 import summarize_metrics  # noqa: E402
@@ -71,6 +73,42 @@ def test_summarize_object_row_prefers_subcontractor_effective_author() -> None:
     assert row["lead_org_canonical"] == "Ватага"
     assert row["subcontractor_org_canonical"] == "СП Стройинвест ГРУПП"
     assert row["authorship_status"] == "ready"
+
+
+def test_resolve_organization_name_uses_legal_form_independent_identity() -> None:
+    alias = {
+        "ватага": "Ватага",
+        "инфрастройинтекс": "ИнфраСтройИнтекс",
+        "сп стройинвест групп": "СП Стройинвест ГРУПП",
+    }
+
+    assert organization_identity_keys('ООО «Ватага»') == ("ооо ватага", "ватага")
+    assert resolve_organization_name(
+        {"organization_name_normalized": 'ооо «ватага»'},
+        alias,
+    ) == ("Ватага", "alias_registry")
+    assert resolve_organization_name(
+        {"organization_name_normalized": 'ООО «ИнфраСтройИнтекс»'},
+        alias,
+    ) == ("ИнфраСтройИнтекс", "alias_registry")
+    assert resolve_organization_name(
+        {"organization_name_normalized": 'ООО «СП Стройинвест ГРУПП»'},
+        alias,
+    ) == ("СП Стройинвест ГРУПП", "alias_registry")
+
+    development_alias = {
+        "ооо стройразвитие": "ООО Стройразвитие",
+        "стройразвитие": "Стройразвитие М",
+        "стройразвитие м": "Стройразвитие М",
+    }
+    assert resolve_organization_name(
+        {"organization_name_normalized": 'ООО «Стройразвитие»'},
+        development_alias,
+    ) == ("ООО Стройразвитие", "alias_registry")
+    assert resolve_organization_name(
+        {"organization_name_normalized": 'ООО «Стройразвитие М»'},
+        development_alias,
+    ) == ("Стройразвитие М", "alias_registry")
 
 
 def test_cell_builders_detect_h1_and_h2_eligibility() -> None:

@@ -26,6 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from build_org_alias_registry_v0 import identity_hint
 from text_features import normalize_text
 
 
@@ -76,12 +77,23 @@ def normalize_work_type(value: str) -> str:
 
 
 def load_alias_registry(path: Path) -> dict[str, str]:
-    return {
-        clean_text_key(row["organization_identity_hint"]): row["canonical_display_hint"].strip()
-        for row in read_csv(path)
-        if clean_text_key(row.get("organization_identity_hint", ""))
-        and row.get("canonical_display_hint", "").strip()
-    }
+    aliases: dict[str, str] = {}
+    for row in read_csv(path):
+        canonical = row.get("canonical_display_hint", "").strip()
+        if not canonical:
+            continue
+        for value in (row.get("organization_identity_hint", ""), canonical):
+            key = clean_text_key(value)
+            if key:
+                aliases[key] = canonical
+    return aliases
+
+
+def organization_identity_keys(value: str) -> tuple[str, ...]:
+    direct = clean_text_key(value)
+    identity, _display, _legal_form = identity_hint(value, value)
+    normalized_identity = clean_text_key(identity)
+    return tuple(dict.fromkeys(key for key in (direct, normalized_identity) if key))
 
 
 def resolve_organization_name(
@@ -94,11 +106,9 @@ def resolve_organization_name(
         party.get("organization_evidence_text", ""),
     ]
     for candidate in candidates:
-        key = clean_text_key(candidate)
-        if not key:
-            continue
-        if key in alias_by_identity:
-            return alias_by_identity[key], "alias_registry"
+        for key in organization_identity_keys(candidate):
+            if key in alias_by_identity:
+                return alias_by_identity[key], "alias_registry"
     for candidate in candidates:
         value = candidate.strip()
         if value:

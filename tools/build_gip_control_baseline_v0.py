@@ -29,8 +29,6 @@ DEFAULT_SECTIONS = Path(r"E:\output\DocSpectrum\gip_control_registry_v0\gip_cont
 DEFAULT_CELLS = Path(r"E:\output\DocSpectrum\gip_control_registry_v0\gip_control_cells_v0.csv")
 DEFAULT_EXPORT_ROOT = Path(r"E:\output\pdf-structure-explorer\exports")
 DEFAULT_OUTPUT_DIR = Path(r"E:\output\DocSpectrum\gip_control_baseline_v0_1")
-DEFAULT_EXCLUDED_SECTIONS = frozenset({"UNKNOWN", "ПЗ"})
-
 STYLE_RATIO_KEYS = (
     "page_count",
     "elements_per_page",

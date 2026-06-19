@@ -255,6 +255,20 @@ def summarize_group(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def build_relation_headlines(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        grouped[(row["cell_kind"], row["relation"])].append(row)
+    return [
+        {
+            "cell_kind": cell_kind,
+            "relation": relation,
+            **summarize_group(group_rows),
+        }
+        for (cell_kind, relation), group_rows in sorted(grouped.items())
+    ]
+
+
 def build(
     pairwise_path: Path,
     page_matches_path: Path,
@@ -347,6 +361,7 @@ def build(
                 **summarize_group(rows),
             }
         )
+    relation_headline_rows = build_relation_headlines(pairwise_enriched)
 
     calibration_rows = [
         {
@@ -398,6 +413,22 @@ def build(
         ],
     )
     write_csv(
+        output_dir / "gip_control_provenance_residual_headlines_v0.csv",
+        relation_headline_rows,
+        [
+            "cell_kind",
+            "relation",
+            "pair_count",
+            "affected_pair_count_v0_3",
+            "all_excluded_pair_count_v0_3",
+            "third_party_excluded_match_count_total_v0_3",
+            "page_near_shingle_mean_median_v0_2",
+            "residual_page_near_shingle_mean_median_v0_3",
+            "page_near_strong_share_median_v0_2",
+            "residual_page_near_strong_share_median_v0_3",
+        ],
+    )
+    write_csv(
         output_dir / "gip_control_provenance_bands_v0.csv",
         calibration_rows,
         list(calibration_rows[0]),
@@ -431,10 +462,12 @@ def build(
             "Residual rows retain only page matches not explained by calibrated third-party bands.",
             "Sections without calibrated third-party evidence remain pass-through in this layer.",
         ],
+        "relation_headlines": relation_headline_rows,
         "outputs": {
             "page_match_provenance": "gip_control_page_match_provenance_v0.csv",
             "pairwise_residual": "gip_control_pairwise_provenance_residual_v0.csv",
             "summary": "gip_control_provenance_residual_summary_v0.csv",
+            "headlines": "gip_control_provenance_residual_headlines_v0.csv",
             "bands": "gip_control_provenance_bands_v0.csv",
         },
     }
