@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -8,14 +9,17 @@ sys.path.insert(0, str(TOOLS_DIR))
 
 from build_non_uuir_all_sections_selection_v0 import (  # noqa: E402
     infer_section_code,
+    manifest_candidates,
     object_id_from_number,
     should_exclude_pdf,
+    source_number_from_object_id,
 )
 
 
 class NonUuirAllSectionsSelectionTests(unittest.TestCase):
     def test_object_id_from_number(self) -> None:
         self.assertEqual(object_id_from_number("140125"), "1401_25")
+        self.assertEqual(source_number_from_object_id("1401_25"), "140125")
 
     def test_excludes_admin_pdfs(self) -> None:
         excluded, reason = should_exclude_pdf(
@@ -57,6 +61,21 @@ class NonUuirAllSectionsSelectionTests(unittest.TestCase):
         self.assertEqual(infer_section_code("Раздел №7 ПОС.pdf"), "ПОС")
         self.assertEqual(infer_section_code("Раздел №7 ПОКР.pdf"), "ПОС")
         self.assertEqual(infer_section_code("Пояснительная записка.pdf"), "ПЗ")
+
+    def test_manifest_candidates_supports_titled_object_list(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest_path = Path(temp_dir) / "non_uuir_titled_objects_v0.csv"
+            manifest_path.write_text(
+                "object_id,group,gip,org\n1401_25,фундамент,сергеев,ватага\n",
+                encoding="utf-8",
+            )
+            object_dirs = {"1401_25": Path(r"E:\MSE_арх\1401_25 example")}
+            rows = manifest_candidates(manifest_path, object_dirs, 1400, 1883)
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["object_id"], "1401_25")
+            self.assertEqual(rows[0]["source_number"], "140125")
+            self.assertEqual(rows[0]["work_group"], "фундамент")
+            self.assertEqual(rows[0]["registry_gip"], "сергеев")
 
 
 if __name__ == "__main__":

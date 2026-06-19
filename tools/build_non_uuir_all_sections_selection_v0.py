@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_CANDIDATES = Path(r"E:\output\DocSpectrum\gip_corpus_candidates_v0.csv")
+DEFAULT_CANDIDATES = Path(r"E:\output\DocSpectrum\non_uuir_titled_objects_v0.csv")
 DEFAULT_SOURCE_ROOT = Path(r"E:\MSE_арх")
 DEFAULT_EXPORT_ROOT = Path(r"E:\output\pdf-structure-explorer\exports")
 DEFAULT_OUTPUT_DIR = Path(r"E:\output\DocSpectrum\non_uuir_all_sections_selection_v0")
@@ -81,8 +81,12 @@ def now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
-def read_csv(path: Path, delimiter: str = ",") -> list[dict[str, str]]:
+def read_csv(path: Path, delimiter: str | None = None) -> list[dict[str, str]]:
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        if delimiter is None:
+            sample = handle.read(4096)
+            handle.seek(0)
+            delimiter = csv.Sniffer().sniff(sample, delimiters=",;").delimiter
         return list(csv.DictReader(handle, delimiter=delimiter))
 
 
@@ -101,6 +105,10 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def object_id_from_number(source_number: str) -> str:
     return f"{source_number[:4]}_25"
+
+
+def source_number_from_object_id(object_id: str) -> str:
+    return object_id.replace("_25", "25")
 
 
 def object_directories(source_root: Path, start: int, end: int) -> dict[str, Path]:
@@ -160,15 +168,16 @@ def is_complete_export(export_root: Path, document_id: str) -> bool:
     )
 
 
-def build(
-    candidates_path: Path,
-    source_root: Path,
-    export_root: Path,
-    output_dir: Path,
+def manifest_candidates(
+    manifest_path: Path,
+    object_dirs: dict[str, Path],
     start: int,
     end: int,
-) -> dict[str, Any]:
-    generated_at = now()
+) -> list[dict[str, str]]:
+    rows = read_csv(manifest_path)
+    if not rows:
+        return []
+
     num_col = "номер"
     address_col = "название"
     gip_col = "dev_ГИП(доп_2)"
@@ -177,11 +186,35 @@ def build(
     work_subgroup_col = "подГруппа"
     year_col = "год"
 
-    registry_rows = read_csv(candidates_path, delimiter=";")
-    object_dirs = object_directories(source_root, start, end)
+    candidates: list[dict[str, str]] = []
+    for row in rows:
+        if "object_id" in row:
+            object_id = row.get("object_id", "").strip()
+            match = OBJECT_RE.match(object_id)
+            if not match:
+                continue
+            number = int(match.group("number"))
+            if not (start <= number <= end):
+                continue
+            source_dir = object_dirs.get(object_id)
+            address = row.get("address", "").strip()
+            if not address and source_dir:
+                address = source_dir.name[len(object_id) :].strip()
+            candidates.append(
+                {
+                    "object_id": object_id,
+                    "source_number": source_number_from_object_id(object_id),
+                    "address": address,
+                    "registry_gip": row.get("gip", "").strip(),
+                    "registry_org": row.get("org", "").strip(),
+                    "work_group": row.get("group", "").strip(),
+                    "work_subgroup": row.get("subgroup", "").strip(),
+                    "year": row.get("year", "").strip(),
+                    "source_dir": str(source_dir or ""),
+                }
+            )
+            continue
 
-    candidate_rows = []
-    for row in registry_rows:
         source_number = row.get(num_col, "")
         if not source_number or len(source_number) < 4:
             continue
@@ -194,7 +227,7 @@ def build(
             continue
         if row.get(work_group_col, "").strip() == UUIR_GROUP:
             continue
-        candidate_rows.append(
+        candidates.append(
             {
                 "object_id": object_id,
                 "source_number": source_number,
@@ -207,6 +240,20 @@ def build(
                 "source_dir": str(object_dirs.get(object_id, "")),
             }
         )
+    return candidates
+
+
+def build(
+    candidates_path: Path,
+    source_root: Path,
+    export_root: Path,
+    output_dir: Path,
+    start: int,
+    end: int,
+) -> dict[str, Any]:
+    generated_at = now()
+    object_dirs = object_directories(source_root, start, end)
+    candidate_rows = manifest_candidates(candidates_path, object_dirs, start, end)
 
     source_rows: list[dict[str, Any]] = []
     excluded_rows: list[dict[str, Any]] = []
@@ -348,6 +395,7 @@ def build(
     summary = {
         "schema_version": "non_uuir_all_sections_selection_v0",
         "generated_at": generated_at,
+        "manifest_path": str(candidates_path),
         "range": f"{start}_25..{end}_25",
         "candidate_object_count": len(candidate_rows),
         "included_object_count": len({row["object_id"] for row in source_rows}),
