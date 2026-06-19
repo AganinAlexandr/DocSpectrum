@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Build the first wide GIP-control baseline over eligible cells."""
+"""Build the first wide GIP-control baseline over eligible cells.
+
+v0.1 interpretation refinement:
+
+- style headline = size-invariant composition, not the mixed ratio+composition score
+- content headline = word-shingle near overlap, not only exact weighted overlap
+
+The original exact/mixed signals remain in the artifact for diagnostics.
+"""
 
 from __future__ import annotations
 
@@ -20,7 +28,7 @@ from text_features import normalize_text, sha1_text, text_tokens, word_shingles
 DEFAULT_SECTIONS = Path(r"E:\output\DocSpectrum\gip_control_registry_v0\gip_control_sections_v0.csv")
 DEFAULT_CELLS = Path(r"E:\output\DocSpectrum\gip_control_registry_v0\gip_control_cells_v0.csv")
 DEFAULT_EXPORT_ROOT = Path(r"E:\output\pdf-structure-explorer\exports")
-DEFAULT_OUTPUT_DIR = Path(r"E:\output\DocSpectrum\gip_control_baseline_v0")
+DEFAULT_OUTPUT_DIR = Path(r"E:\output\DocSpectrum\gip_control_baseline_v0_1")
 
 STYLE_RATIO_KEYS = (
     "page_count",
@@ -246,15 +254,24 @@ def content_score(left: dict[str, Any], right: dict[str, Any]) -> tuple[float, d
     return (weighted_sum / applicable_weight if applicable_weight else 0.0), axes
 
 
-def summarize(rows: list[dict[str, Any]]) -> tuple[float, float, float, float]:
-    style_values = [float(row["style_similarity_v0"]) for row in rows]
-    content_values = [float(row["content_similarity_v0"]) for row in rows]
-    return (
-        round_float(median(style_values)),
-        round_float(mean(style_values)),
-        round_float(median(content_values)),
-        round_float(mean(content_values)),
-    )
+def summarize_metrics(rows: list[dict[str, Any]]) -> dict[str, float]:
+    def values(field: str) -> list[float]:
+        return [float(row[field]) for row in rows]
+
+    return {
+        "style_similarity_median_v0": round_float(median(values("style_similarity_v0"))),
+        "style_similarity_mean_v0": round_float(mean(values("style_similarity_v0"))),
+        "style_ratio_similarity_median_v0": round_float(median(values("style_ratio_similarity_v0"))),
+        "style_ratio_similarity_mean_v0": round_float(mean(values("style_ratio_similarity_v0"))),
+        "style_composition_similarity_median_v0": round_float(median(values("style_composition_similarity_v0"))),
+        "style_composition_similarity_mean_v0": round_float(mean(values("style_composition_similarity_v0"))),
+        "content_similarity_median_v0": round_float(median(values("content_similarity_v0"))),
+        "content_similarity_mean_v0": round_float(mean(values("content_similarity_v0"))),
+        "text_segment_jaccard_median_v0": round_float(median(values("text_segment_jaccard"))),
+        "text_segment_jaccard_mean_v0": round_float(mean(values("text_segment_jaccard"))),
+        "text_word_shingle_jaccard_median_v0": round_float(median(values("text_word_shingle_jaccard"))),
+        "text_word_shingle_jaccard_mean_v0": round_float(mean(values("text_word_shingle_jaccard"))),
+    }
 
 
 def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: Path) -> dict[str, Any]:
@@ -322,9 +339,11 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
                 "style_similarity_v0": round_float(style_value),
                 "style_ratio_similarity_v0": round_float(style_ratio),
                 "style_composition_similarity_v0": round_float(style_composition),
+                "style_headline_similarity_v0_1": round_float(style_composition),
                 "content_similarity_v0": round_float(content_value),
                 "text_segment_jaccard": round_float(content_axes["text_segment"]),
                 "text_word_shingle_jaccard": round_float(content_axes["text_word_shingle"]),
+                "content_headline_similarity_v0_1": round_float(content_axes["text_word_shingle"]),
                 "table_cell_text_jaccard": round_float(content_axes["table_cell_text"]),
                 "table_layout_jaccard": round_float(content_axes["table_layout_signature"]),
                 "table_content_jaccard": round_float(content_axes["table_content_signature"]),
@@ -338,7 +357,7 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
     cell_summary_rows: list[dict[str, Any]] = []
     for (cell_id, relation), rows in sorted(group_rows.items()):
         sample = rows[0]
-        style_median, style_mean, content_median, content_mean = summarize(rows)
+        metrics = summarize_metrics(rows)
         cell_summary_rows.append(
             {
                 "cell_id": cell_id,
@@ -347,16 +366,13 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
                 "section_code": sample["section_code"],
                 "work_type_key": sample["work_type_key"],
                 "pair_count": len(rows),
-                "style_similarity_median_v0": style_median,
-                "style_similarity_mean_v0": style_mean,
-                "content_similarity_median_v0": content_median,
-                "content_similarity_mean_v0": content_mean,
+                **metrics,
             }
         )
 
     overall_summary_rows: list[dict[str, Any]] = []
     for (kind, relation, section_code, work_type_key), rows in sorted(overall_rows.items()):
-        style_median, style_mean, content_median, content_mean = summarize(rows)
+        metrics = summarize_metrics(rows)
         overall_summary_rows.append(
             {
                 "cell_kind": kind,
@@ -364,10 +380,7 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
                 "section_code": section_code,
                 "work_type_key": work_type_key,
                 "pair_count": len(rows),
-                "style_similarity_median_v0": style_median,
-                "style_similarity_mean_v0": style_mean,
-                "content_similarity_median_v0": content_median,
-                "content_similarity_mean_v0": content_mean,
+                **metrics,
             }
         )
 
@@ -392,9 +405,11 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
             "style_similarity_v0",
             "style_ratio_similarity_v0",
             "style_composition_similarity_v0",
+            "style_headline_similarity_v0_1",
             "content_similarity_v0",
             "text_segment_jaccard",
             "text_word_shingle_jaccard",
+            "content_headline_similarity_v0_1",
             "table_cell_text_jaccard",
             "table_layout_jaccard",
             "table_content_jaccard",
@@ -412,8 +427,16 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
             "pair_count",
             "style_similarity_median_v0",
             "style_similarity_mean_v0",
+            "style_ratio_similarity_median_v0",
+            "style_ratio_similarity_mean_v0",
+            "style_composition_similarity_median_v0",
+            "style_composition_similarity_mean_v0",
             "content_similarity_median_v0",
             "content_similarity_mean_v0",
+            "text_segment_jaccard_median_v0",
+            "text_segment_jaccard_mean_v0",
+            "text_word_shingle_jaccard_median_v0",
+            "text_word_shingle_jaccard_mean_v0",
         ],
     )
     write_csv(
@@ -427,12 +450,20 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
             "pair_count",
             "style_similarity_median_v0",
             "style_similarity_mean_v0",
+            "style_ratio_similarity_median_v0",
+            "style_ratio_similarity_mean_v0",
+            "style_composition_similarity_median_v0",
+            "style_composition_similarity_mean_v0",
             "content_similarity_median_v0",
             "content_similarity_mean_v0",
+            "text_segment_jaccard_median_v0",
+            "text_segment_jaccard_mean_v0",
+            "text_word_shingle_jaccard_median_v0",
+            "text_word_shingle_jaccard_mean_v0",
         ],
     )
     summary = {
-        "schema_version": "gip_control_baseline_v0",
+        "schema_version": "gip_control_baseline_v0_1",
         "generated_at": generated_at,
         "ready_known_section_count": len(sections),
         "eligible_cell_count": len(cells),
@@ -446,8 +477,9 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
             "overall_summary": "gip_control_overall_summary_v0.csv",
         },
         "interpretation_note": (
-            "v0 baseline; style=count/composition, content=exact hash overlap; "
-            "near-match and provenance residual remain next-step refinements"
+            "v0.1 baseline; style headline=size-invariant composition, "
+            "content headline=word-shingle near overlap; exact and mixed metrics "
+            "remain for diagnostics; provenance residual remains a follow-up refinement"
         ),
     }
     write_json(output_dir / "gip_control_baseline_v0.json", summary)
@@ -455,7 +487,7 @@ def build(sections_path: Path, cells_path: Path, export_root: Path, output_dir: 
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build the first wide GIP-control baseline v0.")
+    parser = argparse.ArgumentParser(description="Build the wide GIP-control baseline v0.1.")
     parser.add_argument("--sections", type=Path, default=DEFAULT_SECTIONS)
     parser.add_argument("--cells", type=Path, default=DEFAULT_CELLS)
     parser.add_argument("--export-root", type=Path, default=DEFAULT_EXPORT_ROOT)

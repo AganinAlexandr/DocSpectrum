@@ -14,6 +14,7 @@ from build_gip_control_registry_v0 import (  # noqa: E402
     normalize_work_type,
     summarize_object_row,
 )
+from build_gip_control_baseline_v0 import summarize_metrics  # noqa: E402
 
 
 def test_normalize_work_type_strips_wrappers() -> None:
@@ -130,3 +131,32 @@ def test_cell_builders_detect_h1_and_h2_eligibility() -> None:
 
     assert h1["eligible_for_gip_control"] is True
     assert h2["eligible_for_gip_control"] is True
+
+
+def test_summarize_metrics_exposes_v0_1_headlines() -> None:
+    rows = [
+        {
+            "style_similarity_v0": 0.60,
+            "style_ratio_similarity_v0": 0.40,
+            "style_composition_similarity_v0": 0.80,
+            "content_similarity_v0": 0.10,
+            "text_segment_jaccard": 0.05,
+            "text_word_shingle_jaccard": 0.20,
+        },
+        {
+            "style_similarity_v0": 0.80,
+            "style_ratio_similarity_v0": 0.60,
+            "style_composition_similarity_v0": 0.90,
+            "content_similarity_v0": 0.20,
+            "text_segment_jaccard": 0.10,
+            "text_word_shingle_jaccard": 0.30,
+        },
+    ]
+
+    metrics = summarize_metrics(rows)
+
+    assert metrics["style_similarity_median_v0"] == 0.7
+    assert metrics["style_ratio_similarity_median_v0"] == 0.5
+    assert metrics["style_composition_similarity_median_v0"] == 0.85
+    assert metrics["content_similarity_median_v0"] == 0.15
+    assert metrics["text_word_shingle_jaccard_median_v0"] == 0.25
