@@ -45,16 +45,21 @@ EXCLUDE_PATTERNS = (
 )
 
 EXCLUDE_NAME_PREFIXES = (
-    "тз_",
-    "ао_",
-    "дв_",
+    "тз",
+    "ао",
+    "дв",
+    "ту",
 )
 
 EXCLUDE_NAME_SNIPPETS = (
     " техническое задание",
     "техническое задание ",
     " акт обслед",
+    " акт разгранич",
     "дефектная ведомост",
+    "дефектовка",
+    " уведомление ",
+    " письмо ",
 )
 
 SECTION_MARKERS = (
@@ -66,7 +71,8 @@ SECTION_MARKERS = (
     ("ВК", ("ВК",)),
     ("ЭС", ("ЭС",)),
     ("СС", ("СС",)),
-    ("СМ", ("СМ",)),
+    ("СМ", ("СМ", "СД")),
+    ("ИД", ("ИД",)),
     ("ФАСАД", ("ФАСАД",)),
     ("ФУНДАМЕНТ", ("ФУНДАМЕНТ",)),
     ("БАЛКОНЫ", ("БАЛКОН", "БАЛКОНЫ")),
@@ -135,10 +141,19 @@ def should_exclude_pdf(path: Path) -> tuple[bool, str]:
         if marker in haystack:
             return True, marker
     file_name = normalize_name(path.name)
-    trimmed_name = re.sub(r"^\d+(?:\.\d+)*\s*", "", file_name)
+    trimmed_name = re.sub(r"^\d+(?:\.\d+)*[\s._-]*", "", file_name)
+    for marker in EXCLUDE_NAME_PREFIXES:
+        if re.search(rf"(?<![0-9a-zа-яё]){re.escape(marker)}(?![0-9a-zа-яё])", file_name):
+            return True, marker
     for prefix in EXCLUDE_NAME_PREFIXES:
-        if trimmed_name.startswith(prefix):
-            return True, prefix.rstrip("_")
+        if re.match(rf"^{re.escape(prefix)}(?:[\s._-]|$)", trimmed_name):
+            return True, prefix
+    if re.search(r"(?<![0-9a-zа-яё])тех[\s._-]*задан", file_name):
+        return True, "техническое задание"
+    if re.match(r"^акт(?:[\s._-]|$)", trimmed_name):
+        return True, "акт"
+    if re.match(r"^(?:письмо|уведомление)(?:[\s._-]|$)", trimmed_name):
+        return True, trimmed_name.split(maxsplit=1)[0].split("_", 1)[0]
     for snippet in EXCLUDE_NAME_SNIPPETS:
         if snippet in f" {file_name}":
             return True, snippet.strip()
@@ -147,8 +162,20 @@ def should_exclude_pdf(path: Path) -> tuple[bool, str]:
 
 def infer_section_code(file_name: str) -> str:
     upper_name = file_name.upper()
+    if re.search(r"(?<![0-9A-ZА-ЯЁ])ИОС(?=\d|[^0-9A-ZА-ЯЁ]|$)", upper_name):
+        return "ИНЖЕНЕРИЯ"
+    if re.search(r"(?<![0-9A-ZА-ЯЁ])ЭОМ(?![0-9A-ZА-ЯЁ])", upper_name):
+        return "ИНЖЕНЕРИЯ"
+    if re.search(r"(?<![0-9A-ZА-ЯЁ])СМЕТ", upper_name):
+        return "СМ"
     for code, markers in SECTION_MARKERS:
-        if any(marker.upper() in upper_name for marker in markers):
+        if any(
+            re.search(
+                rf"(?<![0-9A-ZА-ЯЁ]){re.escape(marker.upper())}(?![0-9A-ZА-ЯЁ])",
+                upper_name,
+            )
+            for marker in markers
+        ):
             return code
     return "UNKNOWN"
 

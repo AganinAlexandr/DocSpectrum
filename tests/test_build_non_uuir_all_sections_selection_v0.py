@@ -49,6 +49,15 @@ class NonUuirAllSectionsSelectionTests(unittest.TestCase):
             (Path(r"E:\MSE_арх\1401_25\Документация на проверку\2.1 АО_ул. Школьная.pdf"), "ао"),
             (Path(r"E:\MSE_арх\1401_25\Документация на проверку\2.2 ДВ_ул. Школьная.pdf"), "дв"),
             (Path(r"E:\MSE_арх\1401_25\Документация на проверку\Допсоглашение №1.pdf"), "допсоглаш"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\ТЗ Советская 43 электрика.pdf"), "тз"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\2.1 АО г. Люберцы.pdf"), "ао"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\2.2 ДВ г. Люберцы.pdf"), "дв"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\Акт разграничения.pdf"), "акт"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\Письмо №317.pdf"), "письмо"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\3.2 дом АО.pdf"), "ао"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\3.2 дом ДВ.pdf"), "дв"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\3.2 дом ТЗ.pdf"), "тз"),
+            (Path(r"E:\MSE_арх\1401_25\Документация на проверку\тех. задание дом.pdf"), "техническое задание"),
         ]
         for path, expected_reason in samples:
             with self.subTest(path=path.name):
@@ -61,6 +70,14 @@ class NonUuirAllSectionsSelectionTests(unittest.TestCase):
         self.assertEqual(infer_section_code("Раздел №7 ПОС.pdf"), "ПОС")
         self.assertEqual(infer_section_code("Раздел №7 ПОКР.pdf"), "ПОС")
         self.assertEqual(infer_section_code("Пояснительная записка.pdf"), "ПЗ")
+        self.assertEqual(infer_section_code("4.1.1 СМ_ул Советская, д. 78.pdf"), "СМ")
+        self.assertEqual(infer_section_code("Раздел 12 СД - Дмитрия Холодова.pdf"), "СМ")
+        self.assertEqual(infer_section_code("Раздел 13_ИД_ТТР.pdf"), "ИД")
+        self.assertEqual(infer_section_code("Раздел ИОС5.2.pdf"), "ИНЖЕНЕРИЯ")
+        self.assertEqual(infer_section_code("Раздел 5 ЭОМ.pdf"), "ИНЖЕНЕРИЯ")
+        self.assertEqual(infer_section_code("Раздел 12 Смета.pdf"), "СМ")
+        self.assertEqual(infer_section_code("ул. Советская, д. 78.pdf"), "UNKNOWN")
+        self.assertEqual(infer_section_code("АО Советская 43.pdf"), "UNKNOWN")
 
     def test_manifest_candidates_supports_titled_object_list(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

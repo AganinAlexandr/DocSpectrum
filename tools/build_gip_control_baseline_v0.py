@@ -103,6 +103,19 @@ def include_section(section_code: str, excluded_sections: set[str]) -> bool:
     return bool(section_code) and section_code not in excluded_sections
 
 
+def cross_object_pairs(
+    members: list[dict[str, str]],
+) -> list[tuple[dict[str, str], dict[str, str]]]:
+    return [
+        (left, right)
+        for left, right in itertools.combinations(
+            sorted(members, key=lambda row: (row["object_id"], row["bundle_id"])),
+            2,
+        )
+        if left["object_id"] != right["object_id"]
+    ]
+
+
 def ratio_similarity(left: dict[str, float], right: dict[str, float], keys: tuple[str, ...]) -> float:
     values = []
     for key in keys:
@@ -329,7 +342,7 @@ def build(
             members = sections_by_h2.get(key, [])
             cell_id = f"h2|{cell['gip']}|{cell['work_type_key']}|{cell['section_code']}"
 
-        for left, right in itertools.combinations(sorted(members, key=lambda row: row["object_id"]), 2):
+        for left, right in cross_object_pairs(members):
             if kind == "h1_within_org_diff_gip":
                 relation = "same_gip" if left["effective_gip"] == right["effective_gip"] else "diff_gip"
             else:

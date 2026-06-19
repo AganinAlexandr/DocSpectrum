@@ -16,7 +16,7 @@ from build_gip_control_registry_v0 import (  # noqa: E402
     resolve_organization_name,
     summarize_object_row,
 )
-from build_gip_control_baseline_v0 import summarize_metrics  # noqa: E402
+from build_gip_control_baseline_v0 import cross_object_pairs, summarize_metrics  # noqa: E402
 from build_gip_control_baseline_v0 import include_section  # noqa: E402
 
 
@@ -199,6 +199,19 @@ def test_summarize_metrics_exposes_v0_1_headlines() -> None:
     assert metrics["style_composition_similarity_median_v0"] == 0.85
     assert metrics["content_similarity_median_v0"] == 0.15
     assert metrics["text_word_shingle_jaccard_median_v0"] == 0.25
+
+
+def test_cross_object_pairs_never_compares_versions_of_same_object() -> None:
+    members = [
+        {"object_id": "o1", "bundle_id": "doc_a"},
+        {"object_id": "o1", "bundle_id": "doc_b"},
+        {"object_id": "o2", "bundle_id": "doc_c"},
+    ]
+
+    pairs = cross_object_pairs(members)
+
+    assert len(pairs) == 2
+    assert all(left["object_id"] != right["object_id"] for left, right in pairs)
 
 
 def test_include_section_excludes_pz_and_unknown() -> None:
