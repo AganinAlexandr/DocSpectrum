@@ -12,11 +12,11 @@ with historical declared personnel links.
 
 In this capital-repair corpus, IUL rosters are a noisy and potentially formal
 source. Project staff could fill them on a "just submit it" basis. Developer
-names are therefore weak declared labels, not ground truth. The GIP role has
-higher expected reliability because the GIP is the legally authorized IUL
-signer and should also appear in the listed personnel. Detached signature
-metadata is not read in this layer, so the actual cryptographic signer is not
-verified here.
+names are therefore weak declared labels, not ground truth. The title-page GIP
+is the authoritative section reference and should appear somewhere in the IUL
+roster, but may legally be listed there in another role such as developer.
+Detached signature metadata is not read in this layer, so the actual
+cryptographic signer is not verified here.
 
 ## Input boundary
 
@@ -47,7 +47,7 @@ Surname overlap is a weak review signal and cannot replace exact overlap.
 - text-layer PDFs parsed: `1020`;
 - image-only scanned IUL: `13`;
 - duplicate contents skipped: `4`;
-- person-role hash evidence rows: `3175`.
+- person-role hash evidence rows: `3809`.
 
 Explicit MuPDF object destruction and store cleanup are required. Without
 cleanup, the first run exhausted the WASM store after 548 files even though
@@ -63,22 +63,27 @@ rosters.
 
 ## Validation results
 
-### IUL GIP quality control
+### Title-page GIP presence in IUL
 
-The GIP role is checked independently against the GIP extracted from project
-title pages. Detached `.sig` files are not read, so this compares PDF-declared
-roles, not the cryptographic certificate owner.
+The title page is authoritative for who is shown as GIP for the section.
+The IUL check therefore asks whether that title-page GIP appears anywhere in
+the IUL roster. A qualified engineer may legally appear as a simple developer;
+the IUL role does not have to equal the title role.
+
+Detached `.sig` files are not read, so this compares PDF-declared rosters, not
+the cryptographic certificate owner.
 
 Object-level result for `224` target objects:
 
-- IUL GIP matches title-page GIP: `152`;
-- IUL GIP differs from title-page GIP: `3`;
+- title-page GIP appears as IUL `ГИП`: `152`;
+- title-page GIP appears in another IUL role: `2`;
+- title-page GIP absent from the extracted IUL roster: `1`;
 - title-page GIP reference unavailable: `60`;
 - image-only IUL needing OCR: `3`;
 - no IUL PDF: `6`.
 
-Among the `155` directly comparable objects, the declared GIP matches in
-`98.1%`. The three discrepancies are concentrated and reproducible:
+Among the `155` directly comparable objects, the title-page GIP appears
+somewhere in the IUL roster in `154` cases (`99.4%`).
 
 - `1059_24`, АО ССУ № 3:
   - title-page GIP: Питанов;
@@ -87,15 +92,22 @@ Among the `155` directly comparable objects, the declared GIP matches in
 - `1070_24`, АО ССУ № 3:
   - the same role split: title-page GIP Питанов, IUL GIP Жиров, developer
     Питанов.
+
+These two configurations are not violations: the title-page GIP is present in
+the IUL roster and may also act as a developer.
+
+One object remains a factual QC candidate:
+
 - `1366_25`, Сфера:
   - title-page GIP: Шпаков;
-  - IUL role `ГИП`: Жиров;
-  - Питанов appears in IUL as `Разработал`.
+  - all five IUL PDFs list Жиров as `ГИП`;
+  - all five list Питанов as `Разработал`;
+  - Шпаков is absent from the extracted rosters.
 
-This is an actual declared-role inconsistency in PDF documents. It does not
-prove who applied the electronic signature because signature sidecars are
-outside this layer. It does demonstrate why title, IUL roster, content
-handwriting, and future UKEP metadata must remain separate evidence channels.
+This is a review candidate, not an automatic violation. It may reflect version
+or package composition and needs domain inspection. It does demonstrate why
+title, IUL roster, content handwriting, and future UKEP metadata must remain
+separate evidence channels.
 
 At file level:
 
@@ -170,8 +182,8 @@ Among eight ambiguous handwriting edges:
 - `2` remain insufficient because one side is image-only.
 
 The primary additional value is QC of IUL itself: compare the durable
-handwriting graph with declared rosters, measure mismatches, and separately
-check whether the legally anchored GIP role is present.
+handwriting graph with declared rosters and check whether the authoritative
+title-page GIP is represented anywhere in the IUL roster.
 
 IUL is historical and falsifiable. Agreement with a non-GIP name weakly
 corroborates a hypothesis; disagreement may reflect poor IUL filling and does

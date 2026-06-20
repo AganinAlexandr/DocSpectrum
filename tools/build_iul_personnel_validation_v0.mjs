@@ -326,18 +326,24 @@ async function build(options) {
     const expectedGip = normalizePerson(object.effective_gip ?? '')
     const expectedSurnameHash = expectedGip ? surnameHash(expectedGip) : ''
     const gipEvidence = evidence.filter((row) => row.role_class === 'gip')
-    const matchingGipEvidence = expectedSurnameHash
-      ? gipEvidence.filter((row) => row.surname_hash === expectedSurnameHash)
+    const matchingRosterEvidence = expectedSurnameHash
+      ? evidence.filter((row) => row.surname_hash === expectedSurnameHash)
       : []
+    const matchingGipRoleEvidence = matchingRosterEvidence.filter(
+      (row) => row.role_class === 'gip',
+    )
+    const matchingNonGipRoleEvidence = matchingRosterEvidence.filter(
+      (row) => row.role_class !== 'gip',
+    )
     const parsed = inventory.filter((row) => row.parse_status === 'parsed')
     const imageOnly = inventory.filter((row) => row.parse_status === 'image_only_no_text_layer')
     let status
     if (!inventory.length) status = 'no_iul_pdf'
     else if (!parsed.length && imageOnly.length) status = 'image_only_needs_ocr'
     else if (!expectedSurnameHash) status = 'missing_title_gip_reference'
-    else if (!gipEvidence.length) status = 'iul_gip_role_missing'
-    else if (matchingGipEvidence.length) status = 'iul_gip_matches_title_gip'
-    else status = 'iul_gip_differs_from_title_gip'
+    else if (matchingGipRoleEvidence.length) status = 'title_gip_present_as_iul_gip'
+    else if (matchingNonGipRoleEvidence.length) status = 'title_gip_present_in_other_iul_role'
+    else status = 'title_gip_absent_from_extracted_iul_roster'
     return {
       object_id: object.object_id,
       organization: object.effective_org_canonical,
@@ -346,7 +352,12 @@ async function build(options) {
       image_only_iul_pdf_count: imageOnly.length,
       expected_title_gip_available: Boolean(expectedSurnameHash),
       iul_gip_role_evidence_count: gipEvidence.length,
-      matching_title_gip_evidence_count: matchingGipEvidence.length,
+      title_gip_roster_evidence_count: matchingRosterEvidence.length,
+      title_gip_as_gip_role_evidence_count: matchingGipRoleEvidence.length,
+      title_gip_as_other_role_evidence_count: matchingNonGipRoleEvidence.length,
+      title_gip_observed_roles: [...new Set(
+        matchingRosterEvidence.map((row) => row.role_class),
+      )].sort().join('|'),
       gip_qc_status: status,
     }
   })
@@ -354,25 +365,33 @@ async function build(options) {
   const orgGipQcRows = [...targetOrgs].sort().map((organization) => {
     const rows = objectGipQcRows.filter((row) => row.organization === organization)
     const comparable = rows.filter((row) => [
-      'iul_gip_matches_title_gip',
-      'iul_gip_differs_from_title_gip',
-      'iul_gip_role_missing',
+      'title_gip_present_as_iul_gip',
+      'title_gip_present_in_other_iul_role',
+      'title_gip_absent_from_extracted_iul_roster',
     ].includes(row.gip_qc_status))
-    const matched = rows.filter((row) => row.gip_qc_status === 'iul_gip_matches_title_gip').length
-    const differed = rows.filter((row) => row.gip_qc_status === 'iul_gip_differs_from_title_gip').length
-    const missingRole = rows.filter((row) => row.gip_qc_status === 'iul_gip_role_missing').length
+    const presentAsGip = rows.filter(
+      (row) => row.gip_qc_status === 'title_gip_present_as_iul_gip',
+    ).length
+    const presentOther = rows.filter(
+      (row) => row.gip_qc_status === 'title_gip_present_in_other_iul_role',
+    ).length
+    const absent = rows.filter(
+      (row) => row.gip_qc_status === 'title_gip_absent_from_extracted_iul_roster',
+    ).length
     return {
       organization,
       object_count: rows.length,
       comparable_object_count: comparable.length,
-      matched_title_gip_object_count: matched,
-      differing_title_gip_object_count: differed,
-      missing_iul_gip_role_object_count: missingRole,
+      title_gip_present_as_iul_gip_object_count: presentAsGip,
+      title_gip_present_in_other_iul_role_object_count: presentOther,
+      title_gip_absent_from_iul_roster_object_count: absent,
       image_only_object_count: rows.filter((row) => row.gip_qc_status === 'image_only_needs_ocr').length,
       missing_title_gip_reference_object_count: rows.filter(
         (row) => row.gip_qc_status === 'missing_title_gip_reference',
       ).length,
-      title_gip_match_ratio: comparable.length ? round(matched / comparable.length) : 0,
+      title_gip_present_in_iul_roster_ratio: comparable.length
+        ? round((presentAsGip + presentOther) / comparable.length)
+        : 0,
     }
   })
 
@@ -433,9 +452,9 @@ async function build(options) {
         : row.all_shared_count > row.gip_shared_count
           ? 'declared_non_gip_exact_overlap_weak'
           : row.all_surname_shared_count > row.gip_surname_shared_count
-            ? 'declared_non_gip_surname_overlap_weak'
+          ? 'declared_non_gip_surname_overlap_weak'
           : row.gip_shared_count > 0
-            ? 'gip_role_overlap_higher_reliability'
+            ? 'declared_gip_overlap_only'
             : 'no_declared_overlap_not_dispositive'
     overlapRows.push(row)
   }
@@ -490,7 +509,9 @@ async function build(options) {
       'Names are persisted only as normalized SHA1 hashes.',
       'Developer, GIP, control, approved, and all-roster overlaps are reported separately.',
       'Declared developer names are weak noisy labels in the capital-repair corpus.',
-      'The GIP role is more reliable because the GIP is the legally anchored IUL signer role.',
+      'The title-page GIP is authoritative for the section.',
+      'A qualified engineer may appear in IUL as a developer without any violation.',
+      'IUL QC checks whether the title-page GIP appears anywhere in the extracted roster.',
       'No declared personnel overlap is not evidence of independent authorship.',
       'IUL overlap validates the handwriting graph and is not a model input.',
     ],
