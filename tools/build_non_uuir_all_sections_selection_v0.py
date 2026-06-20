@@ -19,7 +19,7 @@ DEFAULT_SOURCE_ROOT = Path(r"E:\MSE_арх")
 DEFAULT_EXPORT_ROOT = Path(r"E:\output\pdf-structure-explorer\exports")
 DEFAULT_OUTPUT_DIR = Path(r"E:\output\DocSpectrum\non_uuir_all_sections_selection_v0")
 UUIR_GROUP = "УУиР"
-OBJECT_RE = re.compile(r"^(?P<number>\d{4})_25(?:\D|$)")
+OBJECT_RE = re.compile(r"^(?P<number>\d{4})_(?P<year>\d{2})(?:\D|$)")
 REQUIRED_EXPORT_FILES = {
     "manifest.json",
     "documents.csv",
@@ -42,6 +42,10 @@ EXCLUDE_PATTERNS = (
     "сро",
     "членств",
     "свидетельств",
+    "нострой",
+    "заключен",
+    "справка гип",
+    "квалификац",
 )
 
 EXCLUDE_NAME_PREFIXES = (
@@ -110,11 +114,17 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def object_id_from_number(source_number: str) -> str:
-    return f"{source_number[:4]}_25"
+    digits = re.sub(r"\D+", "", source_number)
+    if len(digits) < 6:
+        raise ValueError(f"Cannot derive object id from source number: {source_number}")
+    return f"{digits[:4]}_{digits[-2:]}"
 
 
 def source_number_from_object_id(object_id: str) -> str:
-    return object_id.replace("_25", "25")
+    match = OBJECT_RE.match(object_id)
+    if not match:
+        raise ValueError(f"Cannot derive source number from object id: {object_id}")
+    return f"{match.group('number')}{match.group('year')}"
 
 
 def object_directories(source_root: Path, start: int, end: int) -> dict[str, Path]:
@@ -127,7 +137,7 @@ def object_directories(source_root: Path, start: int, end: int) -> dict[str, Pat
             continue
         number = int(match.group("number"))
         if start <= number <= end:
-            result[f"{number}_25"] = path
+            result[f"{number}_{match.group('year')}"] = path
     return result
 
 
@@ -141,27 +151,148 @@ def should_exclude_pdf(path: Path) -> tuple[bool, str]:
         if marker in haystack:
             return True, marker
     file_name = normalize_name(path.name)
+    if re.match(
+        r"^294[67]-к\s+от\s+\d{1,2}\.\d{1,2}\.\d{4}",
+        file_name,
+    ):
+        return True, "договор кчс"
+    if re.match(
+        r"^\d{4}-к\s+от\s+\d{1,2}\.\d{1,2}\.\d{4}",
+        file_name,
+    ) and "кчс" in file_name:
+        return True, "договор кчс"
+    if re.search(
+        r"(?<![0-9a-zа-яё])суб\s+от\s+\d{1,2}\.\d{1,2}\.\d{4}",
+        file_name,
+    ):
+        return True, "договор субподряда"
+    if re.match(r"^\d+\s*ис\s+от\s+\d{1,2}\.\d{1,2}\.\d{4}", file_name):
+        return True, "исходящее"
+    if re.match(
+        r"^(?:\d+[\s._-]*)?(?:ответ\s+минстрой|возобновлен)",
+        file_name,
+    ):
+        return True, "служебная переписка"
+    if re.match(r"^в\s+гбу(?:[\s._-]|$)", file_name):
+        return True, "заявление"
+    if re.fullmatch(r"стройразвитие\s+проект\.*(?:\.pdf)?", file_name):
+        return True, "ноприз"
+    if re.match(r"^жуковский\b", file_name) and re.search(
+        r"\b\d+\.\d+\b",
+        file_name,
+    ):
+        return True, "техническое задание"
+    if "сменаназвания" in file_name.replace(" ", "").replace("_", ""):
+        return True, "решение о смене названия"
+    if re.search(r"(?<![0-9a-zа-яё])обсл(?:[.\s_-]|$)", file_name):
+        return True, "обследование"
+    if "шахматк" in file_name:
+        return True, "шахматка отказов"
+    if "технический паспорт мкд" in file_name:
+        return True, "технический паспорт мкд"
+    if file_name.startswith("карла маркса 50_08-10-2024_11-49"):
+        return True, "технический паспорт мкд"
+    if file_name in {
+        "2347псд от 26.12.2023.pdf",
+        "2745-к дс 3.docx.pdf",
+    }:
+        return True, "договор по front-matter"
+    if file_name.startswith("прил №2 советская 52к3 гвс"):
+        return True, "приложение к договору"
     trimmed_name = re.sub(r"^\d+(?:\.\d+)*[\s._-]*", "", file_name)
+    if re.match(r"^паспорт(?:[\s._-]|$)", trimmed_name):
+        return True, "технический паспорт мкд"
     for marker in EXCLUDE_NAME_PREFIXES:
         if re.search(rf"(?<![0-9a-zа-яё]){re.escape(marker)}(?![0-9a-zа-яё])", file_name):
             return True, marker
+    if re.fullmatch(r"(?:ао|дв)\d*(?:\.pdf)?", file_name):
+        return True, file_name[:2]
     for prefix in EXCLUDE_NAME_PREFIXES:
         if re.match(rf"^{re.escape(prefix)}(?:[\s._-]|$)", trimmed_name):
             return True, prefix
     if re.search(r"(?<![0-9a-zа-яё])тех[\s._-]*задан", file_name):
         return True, "техническое задание"
+    if re.search(r"(?<![0-9a-zа-яё])т[\s._-]*з(?:[\s._-]|$)", file_name):
+        return True, "тз"
     if re.match(r"^акт(?:[\s._-]|$)", trimmed_name):
         return True, "акт"
+    if re.match(r"^дог(?:[\s._-]|$)", trimmed_name):
+        return True, "договор"
+    if re.match(r"^доп(?:[\s._-]|$)", trimmed_name):
+        return True, "допсоглаш"
     if re.match(r"^(?:письмо|уведомление)(?:[\s._-]|$)", trimmed_name):
         return True, trimmed_name.split(maxsplit=1)[0].split("_", 1)[0]
+    if re.match(r"^(?:заяв\w*|зяв\w*|исх)(?:[\s._-]|$)", trimmed_name):
+        return True, "заявка/исходящее"
+    if re.search(r"дефектн[\w\s._-]*ведомост", file_name):
+        return True, "дефектная ведомость"
+    if re.search(r"(?<![0-9a-zа-яё])лс(?:[._-]|\s)*\d", file_name) and "бим" in file_name:
+        return True, "локальный сметный расчет"
     for snippet in EXCLUDE_NAME_SNIPPETS:
         if snippet in f" {file_name}":
             return True, snippet.strip()
+    if infer_section_code(path.name) == "ПЗ":
+        return True, "пз"
+    if infer_section_code(path.name) == "ТЗК":
+        return True, "тзк"
+    if infer_section_code(path.name) == "КАЦ":
+        return True, "кац"
     return False, ""
 
 
 def infer_section_code(file_name: str) -> str:
     upper_name = file_name.upper()
+    if upper_name == "1___23_1.PDF":
+        return "ПЗ"
+    if re.search(r"(?<![0-9A-ZА-ЯЁ])ПЗ(?![0-9A-ZА-ЯЁ])", upper_name):
+        return "ПЗ"
+    if re.search(r"\bПЗАПИСК|\bПОЯСНИТЕЛЬН\w*[\s._-]+ЗАПИСК", upper_name):
+        return "ПЗ"
+    if re.search(r"\bРАЗДЕЛ[_\s-]*(?:ПД[_\s-]*)?№?1[_\s-]", upper_name):
+        return "ПЗ"
+    if re.search(r"(?<![0-9A-ZА-ЯЁ])ТЗК(?![0-9A-ZА-ЯЁ])", upper_name):
+        return "ТЗК"
+    if re.search(r"(?<![0-9A-ZА-ЯЁ])КАЦ?(?![0-9A-ZА-ЯЁ])", upper_name):
+        return "КАЦ"
+    if re.search(r"\b(?:ЛСР|ЛС)(?:\b|[_-])", upper_name):
+        return "СМ"
+    if re.search(r"(?:РАЗДЕЛ\s*)?12[_\s-]*(?:ЛС|СМ)", upper_name):
+        return "СМ"
+    if re.search(r"(?:ИОСУУ|ХВСУУ|УУГВС|УУХВС)", upper_name):
+        return "ИНЖЕНЕРИЯ"
+    if upper_name.startswith("ПКР-") and re.search(
+        r"(?<![0-9A-ZА-ЯЁ])ГВС(?![0-9A-ZА-ЯЁ])",
+        upper_name,
+    ):
+        return "ГВС"
+    if re.search(r"\b(?:ГВС|ХВС)\s+ПРОЕКТ\b|\bПРОЕКТ\s+НА\s+УЗЛЫ\s+УЧЕТА\b", upper_name):
+        return "ИНЖЕНЕРИЯ"
+    if re.search(r"\bВПВ\b", upper_name):
+        return "ИНЖЕНЕРИЯ"
+    if re.search(r"\bСИСТЕМ\w*\s+ЭЛЕКТРОСНАБЖЕН", upper_name):
+        return "ЭС"
+    if re.search(r"\bСИСТЕМ\w*\s+ОТОПЛЕН", upper_name):
+        return "ОВ"
+    if re.search(r"\bРАЗДЕЛ(?:\s+ПД)?\s*№?\s*5(?:\.\d+)?\b", upper_name):
+        return "ИНЖЕНЕРИЯ"
+    if re.search(r"\bРАЗДЕЛ(?:\s+ПД)?\s*№?\s*3\b", upper_name):
+        return "АР"
+    if re.search(r"\bРАЗДЕЛ(?:\s+ПД)?\s*№?\s*4\b", upper_name):
+        return "КР"
+    if re.search(r"\bРАЗДЕЛ(?:\s+ПД)?\s*№?\s*[67]\b", upper_name):
+        if (
+            "ОРГАНИЗАЦ" in upper_name
+            or "ПОКР" in upper_name
+            or "ПОС" in upper_name
+            or "ПОДПИСАННЫЙ ТИТУЛ" in upper_name
+        ):
+            return "ПОС"
+    if re.search(r"\bРАЗДЕЛ(?:\s+ПД)?\s*№?\s*12\b", upper_name):
+        return "СМ"
+    if re.search(r"\bРАЗДЕЛ(?:\s+ПД)?\s*№?\s*1\s*П?З?\b", upper_name):
+        return "ПЗ"
+    if re.search(r"\bРАЗДЕЛ\s*№?\s*1ПЗ\b", upper_name):
+        return "ПЗ"
     if re.search(r"(?<![0-9A-ZА-ЯЁ])ИОС(?=\d|[^0-9A-ZА-ЯЁ]|$)", upper_name):
         return "ИНЖЕНЕРИЯ"
     if re.search(r"(?<![0-9A-ZА-ЯЁ])ЭОМ(?![0-9A-ZА-ЯЁ])", upper_name):
@@ -177,6 +308,16 @@ def infer_section_code(file_name: str) -> str:
             for marker in markers
         ):
             return code
+    if re.search(r"ПОКР(?![A-ZА-ЯЁ])|ПОКР(?=[A-ZА-ЯЁ])", upper_name):
+        return "ПОС"
+    if re.search(r"КР\d+(?:\.PDF)?$", upper_name):
+        return "КР"
+    if "ПРОЕКТ ОРГАНИЗАЦИИ КАПИТАЛЬНОГО РЕМОНТА" in upper_name:
+        return "ПОС"
+    if "ИНАЯ ДОКУМЕНТАЦИЯ" in upper_name:
+        return "ИД"
+    if upper_name.startswith("РАЗДЕЛ 7 ПД_"):
+        return "ПОС"
     return "UNKNOWN"
 
 
@@ -423,7 +564,7 @@ def build(
         "schema_version": "non_uuir_all_sections_selection_v0",
         "generated_at": generated_at,
         "manifest_path": str(candidates_path),
-        "range": f"{start}_25..{end}_25",
+        "range": f"{start}..{end}",
         "candidate_object_count": len(candidate_rows),
         "included_object_count": len({row["object_id"] for row in source_rows}),
         "source_pdf_count": len(source_rows),
