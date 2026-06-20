@@ -214,6 +214,22 @@ def summarize_experts(session_rows: list[dict[str, Any]]) -> list[dict[str, Any]
             for row in rows
             if row["session_size_class"] == "multi_object_batch"
         ]
+        classified_multi_object = [
+            row
+            for row in rows
+            if row["session_size_class"] == "multi_object_batch"
+            and int(row["classified_outcome_count"]) > 0
+        ]
+        thorough_sessions = sum(
+            float(row["clean_share_classified"]) == 0.0
+            for row in classified_multi_object
+        )
+        skim_sessions = sum(
+            float(row["clean_share_classified"]) == 1.0
+            for row in classified_multi_object
+        )
+        mixed_sessions = len(classified_multi_object) - thorough_sessions - skim_sessions
+        polarization_denominator = len(classified_multi_object)
         classified_clean = [
             float(row["clean_share_classified"])
             for row in rows
@@ -257,6 +273,32 @@ def summarize_experts(session_rows: list[dict[str, Any]]) -> list[dict[str, Any]
                 "multi_object_session_clean_share_range": (
                     round_float(max(multi_object_clean) - min(multi_object_clean))
                     if multi_object_clean
+                    else ""
+                ),
+                "classified_multi_object_session_count": polarization_denominator,
+                "thorough_session_count": thorough_sessions,
+                "mixed_session_count": mixed_sessions,
+                "skim_session_count": skim_sessions,
+                "thorough_session_share": (
+                    round_float(thorough_sessions / polarization_denominator)
+                    if polarization_denominator
+                    else ""
+                ),
+                "mixed_session_share": (
+                    round_float(mixed_sessions / polarization_denominator)
+                    if polarization_denominator
+                    else ""
+                ),
+                "skim_session_share": (
+                    round_float(skim_sessions / polarization_denominator)
+                    if polarization_denominator
+                    else ""
+                ),
+                "polarized_session_share": (
+                    round_float(
+                        (thorough_sessions + skim_sessions) / polarization_denominator
+                    )
+                    if polarization_denominator
                     else ""
                 ),
                 "organization_count": len({str(row["organization"]) for row in rows}),
@@ -445,6 +487,14 @@ def build(
             "multi_object_session_clean_share_mean",
             "multi_object_session_clean_share_variance",
             "multi_object_session_clean_share_range",
+            "classified_multi_object_session_count",
+            "thorough_session_count",
+            "mixed_session_count",
+            "skim_session_count",
+            "thorough_session_share",
+            "mixed_session_share",
+            "skim_session_share",
+            "polarized_session_share",
             "organization_count",
             "work_type_count",
             "session_clean_share_mean",

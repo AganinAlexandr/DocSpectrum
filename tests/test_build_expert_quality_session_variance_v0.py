@@ -109,6 +109,9 @@ def test_expert_variance_is_across_sessions_not_objects() -> None:
     assert summary["session_clean_share_range"] == 1.0
     assert summary["multi_object_session_count"] == 1
     assert summary["multi_object_session_clean_share_variance"] == 0.0
+    assert summary["classified_multi_object_session_count"] == 1
+    assert summary["polarized_session_share"] == 1.0
+    assert summary["skim_session_count"] == 1
 
 
 def test_quantile_interpolates() -> None:

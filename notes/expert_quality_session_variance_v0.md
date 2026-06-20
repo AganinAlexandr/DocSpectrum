@@ -30,6 +30,18 @@ treated as remarks or clean passes.
 Because single-object sessions are mechanically binary, the expert summary
 also reports the same clean-share statistics for multi-object batches only.
 
+The primary conditional-mode diagnostic is polarization on multi-object
+sessions with at least one classified outcome:
+
+- `thorough`: classified clean share = 0;
+- `skim`: classified clean share = 1;
+- `mixed`: strictly between 0 and 1;
+- `polarized`: thorough or skim.
+
+Unresolved rows are excluded from the classified share, while their coverage
+remains explicit. A whole session is excluded only when it has no classified
+outcomes.
+
 ## Interpretation boundary
 
 This is a descriptive proxy layer. It does not assign expert quality classes.
