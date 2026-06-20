@@ -20,6 +20,19 @@ class TitleAuthorshipRangeTests(unittest.TestCase):
         self.assertEqual(section_code(Path("Раздел 7-ПОКР.pdf")), "ПОС")
         self.assertIsNone(section_code(Path("ИУЛ к Разделу 4 - КР.pdf")))
 
+    def test_section_code_supports_fallback_project_sections_but_not_pz(self) -> None:
+        self.assertEqual(section_code(Path("ИОС5.1 дом.pdf")), "ИНЖЕНЕРИЯ")
+        self.assertEqual(
+            section_code(Path("Раздел 5 Система электроснабжения.pdf")),
+            "ИНЖЕНЕРИЯ",
+        )
+        self.assertEqual(section_code(Path("Раздел 4 ПД.pdf")), "КР")
+        self.assertEqual(section_code(Path("Раздел 7 ПД.pdf")), "ПОС")
+        self.assertEqual(section_code(Path("Раздел 12 ПД.pdf")), "СМ")
+        self.assertIsNone(section_code(Path("Пояснительная записка ПЗ.pdf")))
+        self.assertIsNone(section_code(Path("Раздел №1 ПЗ 13.ПР-2024.КР.pdf")))
+        self.assertIsNone(section_code(Path("ИУЛ Раздел 4.pdf")))
+
     def test_selects_single_duplicate_and_any_version_for_identity(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

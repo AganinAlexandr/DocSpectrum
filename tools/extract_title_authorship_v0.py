@@ -12,10 +12,11 @@ import subprocess
 import sys
 from collections import Counter
 from datetime import datetime, timezone
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
-from text_features import normalize_text
+from text_features import normalize_text, text_tokens
 
 
 DEFAULT_SELECTION = Path(
@@ -239,6 +240,313 @@ def candidate_line_windows(
     return windows
 
 
+SECTION_FIVE_SUBSECTIONS = (
+    ("ЭС", "Система электроснабжения"),
+    ("ВС", "Система водоснабжения"),
+    ("ВО", "Система водоотведения"),
+    ("ВК", "Система водоснабжения и водоотведения"),
+    ("ОВ", "Отопление, вентиляция и кондиционирование воздуха"),
+    ("СС", "Сети связи"),
+    ("ГС", "Система газоснабжения"),
+)
+
+PP87_SECTION_TITLES = (
+    ("ПЗ", "Пояснительная записка", ("Пояснительная записка",)),
+    (
+        "СПОЗУ",
+        "Схема планировочной организации земельного участка",
+        ("Схема планировочной организации земельного участка",),
+    ),
+    (
+        "АР",
+        "Объемно-планировочные и архитектурные решения",
+        (
+            "Объемно-планировочные и архитектурные решения",
+            "Архитектурные решения",
+        ),
+    ),
+    ("КР", "Конструктивные решения", ("Конструктивные решения",)),
+    (
+        "ООС",
+        "Мероприятия по охране окружающей среды",
+        ("Мероприятия по охране окружающей среды",),
+    ),
+    (
+        "ПОС",
+        "Проект организации строительства",
+        (
+            "Проект организации строительства",
+            "Проект организации капитального ремонта",
+        ),
+    ),
+    (
+        "ПБ",
+        "Мероприятия по обеспечению пожарной безопасности",
+        ("Мероприятия по обеспечению пожарной безопасности",),
+    ),
+    (
+        "ТБЭ",
+        "Требования к безопасной эксплуатации",
+        (
+            "Требования к безопасной эксплуатации",
+            "Требования к обеспечению безопасной эксплуатации",
+        ),
+    ),
+    (
+        "ОДИ",
+        "Мероприятия по обеспечению доступа инвалидов",
+        ("Мероприятия по обеспечению доступа инвалидов",),
+    ),
+    (
+        "СМ",
+        "Смета на строительство",
+        (
+            "Смета на строительство",
+            "Смета на капитальный ремонт",
+        ),
+    ),
+)
+
+SECTION_TITLE_STOP_RE = re.compile(
+    r"\b(?:том|шифр|заказчик|застройщик|гип|главн\w*\s+инженер|"
+    r"генеральн\w*\s+директор|проверил|разработал|дата)\b",
+)
+SECTION_MATCH_STOPWORDS = {
+    "подраздел",
+    "система",
+    "раздел",
+}
+
+
+def section_title_tokens(value: str) -> list[str]:
+    return [
+        token
+        for token in text_tokens(normalize_text(value))
+        if not token.isdigit() and token not in SECTION_MATCH_STOPWORDS
+    ]
+
+
+def token_similarity(left: str, right: str) -> float:
+    if left == right:
+        return 1.0
+    if min(len(left), len(right)) >= 6 and left[:6] == right[:6]:
+        return 0.95
+    return SequenceMatcher(None, left, right).ratio()
+
+
+def subsection_match_score(value: str, canonical_name: str) -> float:
+    observed = section_title_tokens(value)
+    expected = section_title_tokens(canonical_name)
+    if not observed or not expected:
+        return 0.0
+
+    matched = sum(
+        max(token_similarity(expected_token, observed_token) for observed_token in observed)
+        >= 0.82
+        for expected_token in expected
+    )
+    token_recall = matched / len(expected)
+    token_precision = matched / len(observed)
+    normalized_observed = " ".join(observed)
+    normalized_expected = " ".join(expected)
+    phrase_score = SequenceMatcher(
+        None,
+        normalized_expected,
+        normalized_observed,
+    ).ratio()
+    return round(
+        0.65 * token_recall + 0.25 * token_precision + 0.10 * phrase_score,
+        6,
+    )
+
+
+def match_title_name(
+    value: str,
+    candidates: tuple[tuple[str, str], ...],
+    field_prefix: str,
+) -> dict[str, str]:
+    ranked = sorted(
+        (
+            (subsection_match_score(value, name), code, name)
+            for code, name in candidates
+        ),
+        reverse=True,
+    )
+    best_score, best_code, best_name = ranked[0]
+    second_score, second_code, second_name = ranked[1]
+    margin = best_score - second_score
+    resolved = best_score >= 0.62 and margin >= 0.10
+    return {
+        f"{field_prefix}_match_code": best_code if resolved else "",
+        f"{field_prefix}_match_name": best_name if resolved else "",
+        f"{field_prefix}_match_score": f"{best_score:.6f}",
+        f"{field_prefix}_second_code": second_code,
+        f"{field_prefix}_second_name": second_name,
+        f"{field_prefix}_second_score": f"{second_score:.6f}",
+        f"{field_prefix}_match_margin": f"{margin:.6f}",
+        f"{field_prefix}_match_status": (
+            "resolved"
+            if resolved
+            else "ambiguous"
+            if best_score >= 0.45
+            else "insufficient"
+        ),
+    }
+
+
+def match_section_five_subsection(value: str) -> dict[str, str]:
+    return match_title_name(
+        value,
+        SECTION_FIVE_SUBSECTIONS,
+        "declared_subsection",
+    )
+
+
+def empty_title_match(field_prefix: str) -> dict[str, str]:
+    return {
+        f"{field_prefix}_match_code": "",
+        f"{field_prefix}_match_name": "",
+        f"{field_prefix}_match_score": "",
+        f"{field_prefix}_second_code": "",
+        f"{field_prefix}_second_name": "",
+        f"{field_prefix}_second_score": "",
+        f"{field_prefix}_match_margin": "",
+        f"{field_prefix}_match_status": "not_evaluated",
+    }
+
+
+def match_pp87_section(value: str) -> dict[str, str]:
+    ranked = sorted(
+        (
+            (
+                max(subsection_match_score(value, alias) for alias in aliases),
+                code,
+                canonical_name,
+            )
+            for code, canonical_name, aliases in PP87_SECTION_TITLES
+        ),
+        reverse=True,
+    )
+    best_score, best_code, best_name = ranked[0]
+    second_score, second_code, second_name = ranked[1]
+    margin = best_score - second_score
+    resolved = best_score >= 0.62 and margin >= 0.10
+    return {
+        "declared_section_match_code": best_code if resolved else "",
+        "declared_section_match_name": best_name if resolved else "",
+        "declared_section_match_score": f"{best_score:.6f}",
+        "declared_section_second_code": second_code,
+        "declared_section_second_name": second_name,
+        "declared_section_second_score": f"{second_score:.6f}",
+        "declared_section_match_margin": f"{margin:.6f}",
+        "declared_section_match_status": (
+            "resolved"
+            if resolved
+            else "ambiguous"
+            if best_score >= 0.45
+            else "insufficient"
+        ),
+    }
+
+
+def collect_title_block(
+    scoped: list[dict[str, Any]],
+    start_index: int,
+    max_following_lines: int = 4,
+) -> list[str]:
+    first = scoped[start_index]
+    page_number = first["page_number"]
+    result = [first["text"].strip()]
+    for row in scoped[start_index + 1 : start_index + 1 + max_following_lines]:
+        if row["page_number"] != page_number:
+            break
+        text = row["text"].strip()
+        normalized = normalize_text(text)
+        if (
+            re.search(r"\b(?:раздел|подраздел)\s*(?:№\s*)?\d", normalized)
+            or SECTION_TITLE_STOP_RE.search(normalized)
+        ):
+            break
+        result.append(text)
+    return list(dict.fromkeys(result))
+
+
+def extract_declared_section(lines: list[dict[str, Any]]) -> dict[str, str]:
+    ordered = sorted(lines, key=lambda row: (row["page_number"], row["y"]))
+    normalized = [normalize_text(row["text"]) for row in ordered]
+    anchor_indices = [
+        index for index, text in enumerate(normalized)
+        if "проектная документация" in text
+    ]
+    start = anchor_indices[0] if anchor_indices else 0
+    scoped = ordered[start : start + 35]
+
+    section_lines: list[str] = []
+    subsection_lines: list[str] = []
+    section_number = ""
+    subsection_number = ""
+    for index, row in enumerate(scoped):
+        text = row["text"].strip()
+        normalized_text = normalize_text(text)
+        section_match = re.search(
+            r"\bраздел\s*(?:№\s*)?(\d+(?:\.\d+)*)",
+            normalized_text,
+        )
+        subsection_match = re.search(
+            r"\bподраздел\s*(?:№\s*)?(\d+(?:\.\d+)*)",
+            normalized_text,
+        )
+        if subsection_match:
+            if not subsection_lines:
+                subsection_lines = collect_title_block(scoped, index)
+        elif section_match:
+            if not section_lines:
+                section_lines = collect_title_block(scoped, index)
+        if section_match and not section_number:
+            section_number = section_match.group(1)
+        if subsection_match and not subsection_number:
+            subsection_number = subsection_match.group(1)
+
+    declared_text = " | ".join(dict.fromkeys(section_lines))
+    declared_subsection_text = " | ".join(dict.fromkeys(subsection_lines))
+    subsection_match = (
+        match_section_five_subsection(declared_subsection_text)
+        if section_number.split(".", 1)[0] == "5" and declared_subsection_text
+        else empty_title_match("declared_subsection")
+    )
+    section_match = (
+        match_pp87_section(declared_text)
+        if section_number and section_number.split(".", 1)[0] != "5"
+        else empty_title_match("declared_section")
+    )
+    canonical = (
+        subsection_match["declared_subsection_match_code"]
+        or section_match["declared_section_match_code"]
+    )
+    return {
+        "declared_section_number": section_number,
+        "declared_section_text": declared_text,
+        "declared_subsection_number": subsection_number,
+        "declared_subsection_text": declared_subsection_text,
+        "declared_section_kind": canonical,
+        **section_match,
+        **subsection_match,
+        "declared_section_status": (
+            "resolved_from_title"
+            if canonical
+            else "subsection_text_found_kind_ambiguous"
+            if declared_subsection_text
+            else "section_text_only"
+            if declared_text
+            else "not_found"
+        ),
+    }
+
+
+def canonical_section_kind(value: str) -> str:
+    return match_section_five_subsection(value)["declared_subsection_match_code"]
+
+
 def clean_organization_name(text: str) -> str:
     quoted = re.search(r"«\s*([^»]{2,}?)\s*»", text)
     if not quoted:
@@ -429,6 +737,24 @@ def build(
                     "anomaly": "title_ocr_recovered_cli",
                 }
         groups = group_title_pages(title_pages)
+        title_lines = [
+            line
+            for page_number in title_pages
+            for line in ocr_lines_by_page.get(page_number, [])
+        ]
+        if not title_lines and title_pages:
+            title_lines = visual_lines(bundle, title_pages)
+        declared_section = extract_declared_section(title_lines)
+        selected_section_code = selection.get("section_code", "")
+        title_section_code = declared_section["declared_section_kind"]
+        effective_section_code = title_section_code or selected_section_code
+        section_code_status = (
+            "title_matches_selection"
+            if title_section_code and title_section_code == selected_section_code
+            else "title_overrides_selection"
+            if title_section_code
+            else "selection_fallback"
+        )
         structure_status = (
             "single_party_expected"
             if len(groups) == 1 and len(title_pages) == 2
@@ -448,6 +774,11 @@ def build(
                 "title_detection_base_anomaly": base_anomaly,
                 "title_structure_status": structure_status,
                 "party_group_count": len(groups),
+                "section_code_selected": selected_section_code,
+                "section_code_title": title_section_code,
+                "section_code_effective": effective_section_code,
+                "section_code_resolution_status": section_code_status,
+                **declared_section,
             }
         )
 

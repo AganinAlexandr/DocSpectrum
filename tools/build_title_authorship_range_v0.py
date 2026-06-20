@@ -22,8 +22,8 @@ DEFAULT_OUTPUT_DIR = Path(
 DEFAULT_STAGING_DIR = Path(
     r"E:\output\DocSpectrum\title_authorship_range_1800_1883_pdf_input_v0"
 )
-SECTION_PRIORITY = ("КР", "ПОС", "АР")
-OBJECT_RE = re.compile(r"^(?P<number>\d{4})_25(?:\D|$)")
+SECTION_PRIORITY = ("КР", "ПОС", "АР", "ИНЖЕНЕРИЯ", "СМ")
+OBJECT_RE = re.compile(r"^(?P<number>\d{4})_(?P<year>\d{2})(?:\D|$)")
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -46,10 +46,18 @@ def section_code(path: Path) -> str | None:
     name = path.stem
     if re.search(r"ИУЛ", name, flags=re.IGNORECASE):
         return None
+    if re.search(r"(?<![А-ЯЁA-Z0-9])ПЗ(?![А-ЯЁA-Z0-9])", name, flags=re.IGNORECASE):
+        return None
+    if re.search(r"(?<![А-ЯЁA-Z0-9])ИОС(?=\d|[^А-ЯЁA-Z0-9]|$)", name, flags=re.IGNORECASE):
+        return "ИНЖЕНЕРИЯ"
+    if re.search(r"(?<![А-ЯЁA-Z0-9])ЭОМ(?![А-ЯЁA-Z0-9])", name, flags=re.IGNORECASE):
+        return "ИНЖЕНЕРИЯ"
     patterns = (
         ("КР", ("КР",)),
         ("ПОС", ("ПОС", "ПОКР")),
         ("АР", ("АР",)),
+        ("ИНЖЕНЕРИЯ", ("ИОС", "ЭОМ")),
+        ("СМ", ("СМ", "СМЕТА")),
     )
     for code, markers in patterns:
         if any(
@@ -59,6 +67,19 @@ def section_code(path: Path) -> str | None:
                 flags=re.IGNORECASE,
             )
             for marker in markers
+        ):
+            return code
+    numbered_sections = (
+        ("КР", 4),
+        ("ПОС", 7),
+        ("ИНЖЕНЕРИЯ", 5),
+        ("СМ", 12),
+    )
+    for code, number in numbered_sections:
+        if re.search(
+            rf"(?<![А-ЯЁA-Z0-9])РАЗДЕЛ(?:\s+ПД)?\s*(?:№\s*)?{number}(?!\d)",
+            name,
+            flags=re.IGNORECASE,
         ):
             return code
     return None
@@ -134,8 +155,8 @@ def build(
     staging_dir.mkdir(parents=True, exist_ok=True)
 
     for number in range(start, end + 1):
-        object_id = f"{number}_25"
         source_dir = directories.get(number)
+        object_id = source_dir.name.split(" ", 1)[0] if source_dir else f"{number}_unknown"
         if source_dir is None:
             inventory_rows.append(
                 {
@@ -235,7 +256,7 @@ def build(
         "generated_at": datetime.now(timezone.utc)
         .replace(microsecond=0)
         .isoformat(),
-        "range": f"{start}_25..{end}_25",
+        "range": f"{start}..{end}",
         "expected_object_count": end - start + 1,
         "source_directory_count": len(directories),
         "selected_object_count": len(selection_rows),

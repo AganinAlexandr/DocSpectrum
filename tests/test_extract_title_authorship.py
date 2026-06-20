@@ -7,6 +7,8 @@ TOOLS_DIR = Path(__file__).resolve().parents[1] / "tools"
 sys.path.insert(0, str(TOOLS_DIR))
 
 from extract_title_authorship_v0 import (  # noqa: E402
+    canonical_section_kind,
+    extract_declared_section,
     candidate_line_windows,
     group_title_pages,
     organization_candidates,
@@ -15,6 +17,174 @@ from extract_title_authorship_v0 import (  # noqa: E402
 
 
 class ExtractTitleAuthorshipTests(unittest.TestCase):
+    def test_declared_kind_uses_subsection_not_generic_section_five(self) -> None:
+        rows = [
+            {
+                "page_number": 1,
+                "y": 10,
+                "text": "ПРОЕКТНАЯ ДОКУМЕНТАЦИЯ",
+            },
+            {
+                "page_number": 1,
+                "y": 20,
+                "text": "Раздел 5 Сведения об инженерном оборудовании, о сетях",
+            },
+            {
+                "page_number": 1,
+                "y": 30,
+                "text": "Подраздел 5.1 «Система электроснабжения»",
+            },
+        ]
+
+        result = extract_declared_section(rows)
+
+        self.assertEqual(result["declared_section_number"], "5")
+        self.assertEqual(result["declared_subsection_number"], "5.1")
+        self.assertEqual(result["declared_section_kind"], "ЭС")
+        self.assertIn("Сведения об инженерном оборудовании", result["declared_section_text"])
+        self.assertIn("Система электроснабжения", result["declared_subsection_text"])
+
+    def test_generic_section_five_without_subsection_is_not_classified(self) -> None:
+        result = extract_declared_section(
+            [
+                {
+                    "page_number": 1,
+                    "y": 10,
+                    "text": "ПРОЕКТНАЯ ДОКУМЕНТАЦИЯ",
+                },
+                {
+                    "page_number": 1,
+                    "y": 20,
+                    "text": "Раздел 5 Сведения об инженерном оборудовании, о сетях",
+                },
+            ]
+        )
+
+        self.assertEqual(result["declared_section_kind"], "")
+        self.assertEqual(result["declared_section_status"], "section_text_only")
+
+    def test_integer_subsection_number_and_multiline_ov_title(self) -> None:
+        result = extract_declared_section(
+            [
+                {
+                    "page_number": 1,
+                    "y": 10,
+                    "text": "ПРОЕКТНАЯ ДОКУМЕНТАЦИЯ",
+                },
+                {
+                    "page_number": 1,
+                    "y": 20,
+                    "text": (
+                        "Раздел 5. Сведения об инженерном оборудовании, "
+                        "о сетях инженерно-технического обеспечения"
+                    ),
+                },
+                {
+                    "page_number": 1,
+                    "y": 30,
+                    "text": (
+                        "Подраздел 4. Отопление, вентиляция и "
+                        "кондиционирование воздуха,"
+                    ),
+                },
+                {
+                    "page_number": 1,
+                    "y": 40,
+                    "text": "тепловые сети.",
+                },
+                {
+                    "page_number": 1,
+                    "y": 50,
+                    "text": "Шифр 123-ОВ",
+                },
+            ]
+        )
+
+        self.assertEqual(result["declared_subsection_number"], "4")
+        self.assertEqual(result["declared_section_kind"], "ОВ")
+        self.assertIn("тепловые сети", result["declared_subsection_text"])
+        self.assertNotIn("Шифр", result["declared_subsection_text"])
+
+    def test_ignores_organization_word_subdivision(self) -> None:
+        result = extract_declared_section(
+            [
+                {
+                    "page_number": 1,
+                    "y": 10,
+                    "text": "ПРОЕКТНАЯ ДОКУМЕНТАЦИЯ",
+                },
+                {
+                    "page_number": 1,
+                    "y": 20,
+                    "text": "Раздел 5. Сведения об инженерном оборудовании",
+                },
+                {
+                    "page_number": 1,
+                    "y": 30,
+                    "text": "Обособленное подразделение фактический адрес",
+                },
+            ]
+        )
+
+        self.assertEqual(result["declared_subsection_number"], "")
+        self.assertEqual(result["declared_section_kind"], "")
+        self.assertEqual(result["declared_section_status"], "section_text_only")
+
+    def test_distinguishes_water_and_combined_water_sewerage(self) -> None:
+        self.assertEqual(
+            canonical_section_kind("Подраздел 2. Система водоснабжения"),
+            "ВС",
+        )
+        self.assertEqual(
+            canonical_section_kind(
+                "Подраздел 2. Система водоснабжения и водоотведения"
+            ),
+            "ВК",
+        )
+
+    def test_classifies_non_engineering_section_from_title(self) -> None:
+        result = extract_declared_section(
+            [
+                {
+                    "page_number": 1,
+                    "y": 10,
+                    "text": "ПРОЕКТНАЯ ДОКУМЕНТАЦИЯ",
+                },
+                {
+                    "page_number": 1,
+                    "y": 20,
+                    "text": "Раздел 7. Проект организации строительства",
+                },
+            ]
+        )
+
+        self.assertEqual(result["declared_section_number"], "7")
+        self.assertEqual(result["declared_section_kind"], "ПОС")
+        self.assertEqual(result["declared_section_match_status"], "resolved")
+
+    def test_title_name_can_override_nonstandard_section_number(self) -> None:
+        result = extract_declared_section(
+            [
+                {
+                    "page_number": 1,
+                    "y": 10,
+                    "text": "ПРОЕКТНАЯ ДОКУМЕНТАЦИЯ",
+                },
+                {
+                    "page_number": 1,
+                    "y": 20,
+                    "text": "Раздел 6. Проект организации капитального ремонта",
+                },
+            ]
+        )
+
+        self.assertEqual(result["declared_section_number"], "6")
+        self.assertEqual(result["declared_section_kind"], "ПОС")
+        self.assertEqual(
+            result["declared_section_match_name"],
+            "Проект организации строительства",
+        )
+
     def test_groups_title_pages_by_lead_and_executor_rule(self) -> None:
         self.assertEqual(group_title_pages([1, 2]), [[1, 2]])
         self.assertEqual(group_title_pages([1, 2, 3]), [[1, 2], [3]])
