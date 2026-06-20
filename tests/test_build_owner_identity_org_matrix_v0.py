@@ -37,6 +37,12 @@ class OwnerIdentityTests(unittest.TestCase):
         self.assertEqual(result["temporal_handoff_score"], 1.0)
         self.assertEqual(result["temporal_handoff_direction"], "old -> new")
 
+    def test_object_id_from_compound_xlsx_number(self) -> None:
+        self.assertEqual(
+            MODULE.object_id_from_xlsx({"номер": "100124", "год": "2024"}),
+            "1001_24",
+        )
+
     def test_connected_components(self) -> None:
         self.assertEqual(
             MODULE.connected_components([("a", "b"), ("b", "c"), ("x", "y")]),

@@ -206,8 +206,12 @@ def parse_xlsx_table(path: Path) -> list[dict[str, Any]]:
 
 
 def object_id_from_xlsx(row: dict[str, Any]) -> str:
-    number = safe_int(row.get("номер"))
+    number_text = str(safe_int(row.get("номер")))
     year = safe_int(row.get("год"))
+    year_suffix = f"{year % 100:02d}" if year else ""
+    if len(number_text) >= 6 and year_suffix and number_text.endswith(year_suffix):
+        number_text = number_text[:-2]
+    number = safe_int(number_text)
     return f"{number:04d}_{year % 100:02d}" if number and year else ""
 
 
@@ -326,6 +330,17 @@ def connected_components(edges: list[tuple[str, str]]) -> list[list[str]]:
     return components
 
 
+def percentile(values: list[float], quantile: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * quantile
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    fraction = position - lower
+    return ordered[lower] * (1.0 - fraction) + ordered[upper] * fraction
+
+
 def build(
     sections_path: Path,
     objects_path: Path,
@@ -334,6 +349,7 @@ def build(
     object_xlsx: Path,
     output_dir: Path,
     max_pairs: int | None = None,
+    reuse_pairs: bool = False,
 ) -> dict[str, Any]:
     sections = canonical_sections(read_csv(sections_path))
     objects = read_csv(objects_path)
@@ -345,49 +361,53 @@ def build(
     for row in sections:
         cells[(row["work_type_key"], row["section_code"])].append(row)
 
-    pair_rows: list[dict[str, Any]] = []
-    processed = 0
-    for (work_type, section_code), members in sorted(cells.items()):
-        profile_cache: dict[str, dict[str, Any]] = {}
-        page_cache: dict[str, list[dict[str, Any]]] = {}
-        cell_pairs = [
-            pair
-            for pair in itertools.combinations(
-                sorted(members, key=lambda row: (row["object_id"], row["bundle_id"])), 2
-            )
-            if pair[0]["object_id"] != pair[1]["object_id"]
-        ]
-        print(f"{work_type} | {section_code}: {len(members)} docs, {len(cell_pairs)} pairs", flush=True)
-        for left, right in cell_pairs:
+    pair_path = output_dir / "owner_identity_document_pairs_v0.csv"
+    if reuse_pairs and pair_path.exists():
+        pair_rows = read_csv(pair_path)
+    else:
+        pair_rows = []
+        processed = 0
+        for (work_type, section_code), members in sorted(cells.items()):
+            profile_cache: dict[str, dict[str, Any]] = {}
+            page_cache: dict[str, list[dict[str, Any]]] = {}
+            cell_pairs = [
+                pair
+                for pair in itertools.combinations(
+                    sorted(members, key=lambda row: (row["object_id"], row["bundle_id"])), 2
+                )
+                if pair[0]["object_id"] != pair[1]["object_id"]
+            ]
+            print(f"{work_type} | {section_code}: {len(members)} docs, {len(cell_pairs)} pairs", flush=True)
+            for left, right in cell_pairs:
+                if max_pairs is not None and processed >= max_pairs:
+                    break
+                left_org = left["effective_org_canonical"]
+                right_org = right["effective_org_canonical"]
+                metrics = pair_metrics(left, right, export_root, bands, profile_cache, page_cache)
+                pair_rows.append(
+                    {
+                        "cell_id": f"{work_type}|{section_code}",
+                        "work_type_key": work_type,
+                        "section_code": section_code,
+                        "left_object_id": left["object_id"],
+                        "right_object_id": right["object_id"],
+                        "left_bundle_id": left["bundle_id"],
+                        "right_bundle_id": right["bundle_id"],
+                        "left_org": left_org,
+                        "right_org": right_org,
+                        "org_pair": " <> ".join(sorted((left_org, right_org))),
+                        "same_org": left_org == right_org,
+                        "left_gip": left.get("effective_gip", ""),
+                        "right_gip": right.get("effective_gip", ""),
+                        "same_gip": bool(left.get("effective_gip")) and left.get("effective_gip") == right.get("effective_gip"),
+                        "left_date_in": date_by_object.get(left["object_id"], ""),
+                        "right_date_in": date_by_object.get(right["object_id"], ""),
+                        **metrics,
+                    }
+                )
+                processed += 1
             if max_pairs is not None and processed >= max_pairs:
                 break
-            left_org = left["effective_org_canonical"]
-            right_org = right["effective_org_canonical"]
-            metrics = pair_metrics(left, right, export_root, bands, profile_cache, page_cache)
-            pair_rows.append(
-                {
-                    "cell_id": f"{work_type}|{section_code}",
-                    "work_type_key": work_type,
-                    "section_code": section_code,
-                    "left_object_id": left["object_id"],
-                    "right_object_id": right["object_id"],
-                    "left_bundle_id": left["bundle_id"],
-                    "right_bundle_id": right["bundle_id"],
-                    "left_org": left_org,
-                    "right_org": right_org,
-                    "org_pair": " <> ".join(sorted((left_org, right_org))),
-                    "same_org": left_org == right_org,
-                    "left_gip": left.get("effective_gip", ""),
-                    "right_gip": right.get("effective_gip", ""),
-                    "same_gip": bool(left.get("effective_gip")) and left.get("effective_gip") == right.get("effective_gip"),
-                    "left_date_in": date_by_object.get(left["object_id"], ""),
-                    "right_date_in": date_by_object.get(right["object_id"], ""),
-                    **metrics,
-                }
-            )
-            processed += 1
-        if max_pairs is not None and processed >= max_pairs:
-            break
 
     cell_org_groups: dict[tuple[str, str, str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in pair_rows:
@@ -453,18 +473,16 @@ def build(
             title_edges[tuple(sorted((lead, sub)))] += 1
 
     org_pair_rows: list[dict[str, Any]] = []
-    graph_edges: list[tuple[str, str]] = []
     for (org_left, org_right), rows in sorted(org_pair_groups.items()):
         supported = [row for row in rows if safe_int(row["self_baseline_org_count"]) >= 1]
         style_retention = median_field(supported, "style_composition_retention")
         content_retention = median_field(supported, "residual_shingle_retention")
         strong_retention = median_field(supported, "residual_strong_share_retention")
+        style_absolute = median_field(supported, "style_composition_median")
+        content_absolute = median_field(supported, "residual_shingle_median")
+        strong_absolute = median_field(supported, "residual_strong_share_median")
         shared_gips = sorted(gip_by_org[org_left] & gip_by_org[org_right])
         link_class = classify_link(style_retention, content_retention)
-        support_ok = len(supported) >= MIN_SUPPORTED_CELLS
-        candidate = support_ok and link_class != "no_transfer_at_v0_thresholds"
-        if candidate:
-            graph_edges.append((org_left, org_right))
         org_pair_rows.append(
             {
                 "org_left": org_left,
@@ -477,14 +495,51 @@ def build(
                 "style_composition_retention_median": rounded(style_retention),
                 "residual_shingle_retention_median": rounded(content_retention),
                 "residual_strong_share_retention_median": rounded(strong_retention),
+                "style_composition_absolute_median": rounded(style_absolute),
+                "residual_shingle_absolute_median": rounded(content_absolute),
+                "residual_strong_share_absolute_median": rounded(strong_absolute),
                 "handwriting_link_class_v0": link_class,
-                "handwriting_candidate_v0": candidate,
                 "shared_gip_count": len(shared_gips),
                 "shared_gips": "|".join(shared_gips),
                 "four_title_disclosed_object_count": title_edges[(org_left, org_right)],
                 **temporal_relation(org_left, org_right, quarter_counts),
             }
         )
+
+    cross_cell_rows = [
+        row for row in cell_org_rows
+        if not row["same_org"] and safe_int(row["self_baseline_org_count"]) >= 1
+    ]
+    shingle_p95 = percentile(
+        [safe_float(row["residual_shingle_median"]) for row in cross_cell_rows], 0.95
+    ) or 0.0
+    strong_p95 = percentile(
+        [safe_float(row["residual_strong_share_median"]) for row in cross_cell_rows], 0.95
+    ) or 0.0
+    graph_edges: list[tuple[str, str]] = []
+    for row in org_pair_rows:
+        support_ok = safe_int(row["supported_cell_count"]) >= MIN_SUPPORTED_CELLS
+        rare_text_overlap = (
+            safe_float(row["residual_shingle_absolute_median"]) >= shingle_p95
+            and safe_float(row["residual_strong_share_absolute_median"]) >= strong_p95
+        )
+        disclosed_network = safe_int(row["four_title_disclosed_object_count"]) > 0
+        handwriting_candidate = support_ok and rare_text_overlap
+        graph_candidate = handwriting_candidate or disclosed_network
+        row["handwriting_candidate_v0"] = handwriting_candidate
+        row["disclosed_network_candidate_v0"] = disclosed_network
+        row["identity_graph_candidate_v0"] = graph_candidate
+        row["identity_edge_kind_v0"] = (
+            "handwriting_and_disclosed_network"
+            if handwriting_candidate and disclosed_network
+            else "rare_handwriting_overlap"
+            if handwriting_candidate
+            else "disclosed_subcontract_network"
+            if disclosed_network
+            else ""
+        )
+        if graph_candidate:
+            graph_edges.append((row["org_left"], row["org_right"]))
 
     components = connected_components(graph_edges)
     component_rows = [
@@ -552,6 +607,8 @@ def build(
             "minimum_supported_cells": MIN_SUPPORTED_CELLS,
             "style_transfer_retention": STYLE_TRANSFER_THRESHOLD,
             "content_transfer_retention": CONTENT_TRANSFER_THRESHOLD,
+            "cross_org_cell_residual_shingle_p95": round(shingle_p95, 4),
+            "cross_org_cell_residual_strong_share_p95": round(strong_p95, 4),
         },
         "interpretation_rules": [
             "Similarity is computed before organization/GIP/temporal/title evidence is joined.",
@@ -574,6 +631,7 @@ def main() -> None:
     parser.add_argument("--object-xlsx", type=Path, default=DEFAULT_OBJECT_XLSX)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--max-pairs", type=int)
+    parser.add_argument("--reuse-pairs", action="store_true")
     args = parser.parse_args()
     print(
         json.dumps(
@@ -585,6 +643,7 @@ def main() -> None:
                 args.object_xlsx,
                 args.output_dir,
                 args.max_pairs,
+                args.reuse_pairs,
             ),
             ensure_ascii=False,
             indent=2,
