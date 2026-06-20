@@ -116,6 +116,37 @@ def resolve_organization_name(
     return "", "missing"
 
 
+def resolve_manifest_organization(
+    value: str,
+    alias_by_identity: dict[str, str],
+) -> tuple[str, str]:
+    for key in organization_identity_keys(value):
+        if key in alias_by_identity:
+            return alias_by_identity[key], "manifest_alias_registry"
+    return (value.strip(), "manifest_raw_fallback") if value.strip() else ("", "missing")
+
+
+def is_bank_context_false_organization(party: dict[str, str]) -> bool:
+    evidence = clean_text_key(party.get("organization_evidence_text", ""))
+    raw = clean_text_key(party.get("organization_name_raw", ""))
+    return (
+        "банк" in evidence
+        and "филиал" in evidence
+        and "центральн" in raw
+        and "центральн" in evidence
+    )
+
+
+def is_association_context_false_organization(party: dict[str, str]) -> bool:
+    evidence = clean_text_key(party.get("organization_evidence_text", ""))
+    raw = clean_text_key(party.get("organization_name_raw", ""))
+    return (
+        ("ассоциация" in evidence or "сро" in evidence)
+        and "объединение градостроительных проектных организаций" in raw
+        and "объединение градостроительных проектных организаций" in evidence
+    )
+
+
 def load_title_results(
     results_root: Path,
 ) -> tuple[dict[str, dict[str, str]], dict[str, list[dict[str, str]]]]:
@@ -158,6 +189,15 @@ def summarize_object_row(
     lead_parties = [row for row in party_rows if row.get("role") == "lead_designer"]
     subcontractor_parties = [row for row in party_rows if row.get("role") == "subcontractor"]
     effective_party = select_effective_party(party_rows)
+    effective_party_for_org = (
+        None
+        if effective_party is not None
+        and (
+            is_bank_context_false_organization(effective_party)
+            or is_association_context_false_organization(effective_party)
+        )
+        else effective_party
+    )
 
     lead_org, lead_org_source = (
         resolve_organization_name(lead_parties[0], alias_by_identity)
@@ -170,10 +210,15 @@ def summarize_object_row(
         else ("", "missing")
     )
     effective_org, effective_org_source = (
-        resolve_organization_name(effective_party, alias_by_identity)
-        if effective_party
+        resolve_organization_name(effective_party_for_org, alias_by_identity)
+        if effective_party_for_org
         else ("", "missing")
     )
+    if not effective_org:
+        effective_org, effective_org_source = resolve_manifest_organization(
+            manifest_row.get("org", ""),
+            alias_by_identity,
+        )
 
     title_page_count = safe_int(document_row.get("title_page_count") if document_row else "")
     if effective_party is None:

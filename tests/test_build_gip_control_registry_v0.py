@@ -11,8 +11,11 @@ if str(TOOLS_DIR) not in sys.path:
 from build_gip_control_registry_v0 import (  # noqa: E402
     build_h1_cells,
     build_h2_cells,
+    is_association_context_false_organization,
+    is_bank_context_false_organization,
     normalize_work_type,
     organization_identity_keys,
+    resolve_manifest_organization,
     resolve_organization_name,
     summarize_object_row,
 )
@@ -223,3 +226,30 @@ def test_include_section_excludes_non_authorial_modeling_sections() -> None:
     assert include_section("ПЗ", excluded) is False
     assert include_section("ИД", excluded) is False
     assert include_section("UNKNOWN", excluded) is False
+
+
+def test_rejects_bank_branch_as_project_organization() -> None:
+    party = {
+        "organization_name_raw": 'ООО «ЦЕНТРАЛЬНЫЙ»',
+        "organization_evidence_text": (
+            'р/с 407028 в ФИЛИАЛ "ЦЕНТРАЛЬНЫЙ" БАНКА ВТБ (ПАО)'
+        ),
+    }
+    assert is_bank_context_false_organization(party) is True
+    assert resolve_manifest_organization(
+        "СтройКА",
+        {"стройка": "СтройКА"},
+    ) == ("СтройКА", "manifest_alias_registry")
+
+
+def test_rejects_sro_association_as_project_organization() -> None:
+    party = {
+        "organization_name_raw": (
+            "ООО «Объединение градостроительных проектных организаций»"
+        ),
+        "organization_evidence_text": (
+            "Капремстройпроект Ассоциация "
+            "«Объединение градостроительных проектных организаций»"
+        ),
+    }
+    assert is_association_context_false_organization(party) is True
