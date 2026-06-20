@@ -13,8 +13,9 @@ with historical declared personnel links.
 In this capital-repair corpus, IUL rosters are a noisy and potentially formal
 source. Project staff could fill them on a "just submit it" basis. Developer
 names are therefore weak declared labels, not ground truth. The title-page GIP
-is the authoritative section reference and should appear somewhere in the IUL
-roster, but may legally be listed there in another role such as developer.
+is the authoritative section-title reference, but is not required to appear in
+a properly formed IUL roster. If present, the same engineer may legally be
+listed there in another role such as developer.
 Detached signature metadata is not read in this layer, so the actual
 cryptographic signer is not verified here.
 
@@ -63,12 +64,14 @@ rosters.
 
 ## Validation results
 
-### Title-page GIP presence in IUL
+### Descriptive title-page GIP presence in IUL
 
 The title page is authoritative for who is shown as GIP for the section.
-The IUL check therefore asks whether that title-page GIP appears anywhere in
-the IUL roster. A qualified engineer may legally appear as a simple developer;
-the IUL role does not have to equal the title role.
+The IUL roster does not have to contain that person when other required names
+are properly provided. Presence, another role, or absence are therefore
+descriptive cross-document states, not correctness statuses. A qualified
+engineer may legally appear as a simple developer; the IUL role does not have
+to equal the title role.
 
 Detached `.sig` files are not read, so this compares PDF-declared rosters, not
 the cryptographic certificate owner.
@@ -77,7 +80,7 @@ Object-level result for `224` target objects:
 
 - title-page GIP appears as IUL `ГИП`: `152`;
 - title-page GIP appears in another IUL role: `2`;
-- title-page GIP absent from the extracted IUL roster: `1`;
+- title-page GIP not observed in the extracted IUL roster: `1`;
 - title-page GIP reference unavailable: `60`;
 - image-only IUL needing OCR: `3`;
 - no IUL PDF: `6`.
@@ -96,7 +99,7 @@ somewhere in the IUL roster in `154` cases (`99.4%`).
 These two configurations are not violations: the title-page GIP is present in
 the IUL roster and may also act as a developer.
 
-One object remains a factual QC candidate:
+One object illustrates the third descriptive state:
 
 - `1366_25`, Сфера:
   - title-page GIP: Шпаков;
@@ -104,10 +107,9 @@ One object remains a factual QC candidate:
   - all five list Питанов as `Разработал`;
   - Шпаков is absent from the extracted rosters.
 
-This is a review candidate, not an automatic violation. It may reflect version
-or package composition and needs domain inspection. It does demonstrate why
-title, IUL roster, content handwriting, and future UKEP metadata must remain
-separate evidence channels.
+This is not an error or review candidate by itself. It demonstrates why title,
+IUL roster, content handwriting, and future UKEP metadata must remain separate
+evidence channels.
 
 At file level:
 
@@ -181,9 +183,9 @@ Among eight ambiguous handwriting edges:
 - `3` have no declared personnel overlap, which is not dispositive;
 - `2` remain insufficient because one side is image-only.
 
-The primary additional value is QC of IUL itself: compare the durable
-handwriting graph with declared rosters and check whether the authoritative
-title-page GIP is represented anywhere in the IUL roster.
+The primary additional value is empirical comparison of the durable
+handwriting graph with declared rosters. Title-page GIP presence is retained
+only as descriptive context.
 
 IUL is historical and falsifiable. Agreement with a non-GIP name weakly
 corroborates a hypothesis; disagreement may reflect poor IUL filling and does
