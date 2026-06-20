@@ -111,7 +111,7 @@ def resolve_organization_name(
                 return alias_by_identity[key], "alias_registry"
     for candidate in candidates:
         value = candidate.strip()
-        if value:
+        if value and clean_text_key(value):
             return value, "title_raw_fallback"
     return "", "missing"
 

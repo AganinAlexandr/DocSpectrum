@@ -253,3 +253,12 @@ def test_rejects_sro_association_as_project_organization() -> None:
         ),
     }
     assert is_association_context_false_organization(party) is True
+
+
+def test_rejects_unkeyable_broken_encoding_raw_fallback() -> None:
+    party = {
+        "organization_name_normalized": "«ɋɬɪɨɣ ɇɨɧɬɚɠ ɋɉ»",
+        "organization_name_raw": "«ɋɬɪɨɣ ɇɨɧɬɚɠ ɋɉ»",
+        "organization_evidence_text": "",
+    }
+    assert resolve_organization_name(party, {}) == ("", "missing")
