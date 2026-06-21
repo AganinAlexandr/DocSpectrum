@@ -48,5 +48,10 @@ Remark text is converted to:
 Depth is heuristic and must be calibrated by human review. Count-recall remains
 a v0 proxy, not a complete quality metric.
 
+Depth calibration v1 removes normative citation as a substantial-depth signal.
+Human labels are authoritative on the labeled subset; automatic depth remains
+triage-only. Calibration recall for human level 2 is the deciding metric for
+whether automatic depth may enter a final report.
+
 `remark_recurrence_v0.csv` reports exact-text hash recurrence across documents
 and roles. It is a correlation clue, not semantic equivalence.

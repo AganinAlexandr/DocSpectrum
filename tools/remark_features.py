@@ -53,22 +53,20 @@ def classify_depth(value: str, categories: list[str]) -> tuple[str, list[str]]:
     normalized = normalize_text(value)
     reasons: list[str] = []
     word_count = len(re.findall(r"[\w]+", normalized, re.UNICODE))
-    has_norm_reference = bool(
-        re.search(r"\b(?:сп|гост|фз|пп)\s*[№\d]|п\.\s*\d", normalized, re.IGNORECASE)
-    )
-    engineering = bool(set(categories) & ENGINEERING_CATEGORIES)
+    # Regulatory citation is a content category, not a depth signal. Exclude it
+    # from every depth decision, including the multi-category path.
+    depth_categories = set(categories) - {"regulatory"}
+    engineering = bool(depth_categories & (ENGINEERING_CATEGORIES - {"regulatory"}))
     if engineering:
         reasons.append("engineering_category")
-    if has_norm_reference:
-        reasons.append("normative_reference")
     if word_count >= 25:
         reasons.append("long_form")
-    if len(categories) >= 2:
+    if len(depth_categories) >= 2:
         reasons.append("multi_category")
 
-    if engineering and (has_norm_reference or word_count >= 25 or len(categories) >= 2):
+    if engineering and (word_count >= 25 or len(depth_categories) >= 2):
         return "substantial_candidate", reasons
-    if set(categories) <= {"formatting", "clarification", "correction", "other"} and word_count <= 22:
+    if depth_categories <= {"formatting", "clarification", "correction", "other"} and word_count <= 22:
         return "simple_candidate", reasons or ["short_non_engineering"]
     return "review_needed", reasons or ["insufficient_signal"]
 
