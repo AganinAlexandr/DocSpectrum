@@ -27,3 +27,7 @@ The active `golden_anchors_v1` suite protects current frozen-artifact behavior a
 `golden_anchors_v0` is retained as the reviewed pilot snapshot. It is superseded by v1 because v0 used permissive numeric coercion, hand-bracketed GIP values, and incomplete per-anchor provenance. Intentional model or corpus changes must explain and version any golden update rather than silently overwriting expected values.
 
 The `474` combined-report denominator and `475` entity-corpus denominator remain separate exact snapshots. Their one-document difference is documented but is not promoted to a universal invariant: the two artifacts have different downstream inclusion scopes.
+
+## Milestone 2 status
+
+The isolated source-lineage fixture group is prepared under `source_lineage_fixtures_v0`: 16 canonical sources and 104 text/table query variants. This is component-level lineage ground truth, not full-document mixing. Explorer extraction, exhaustive retrieval, shortlist audit, and sensitivity metrics remain pending.
