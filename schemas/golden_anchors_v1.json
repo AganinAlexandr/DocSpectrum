@@ -1,0 +1,184 @@
+{
+  "schema_version": "golden_anchors_v1",
+  "purpose": "Protect current frozen-artifact behavior and reviewed relational conclusions before retrieval and graphics work.",
+  "anchors": [
+    {
+      "anchor_id": "axis_a_section_gradient_floor",
+      "artifact": "eval_set_v0_35_n2/eval_set_v0.json",
+      "json_path": ["axis_a_same_address_primary", "spearman_expected_vs_idf"],
+      "operator": "at_least",
+      "minimum": 0.9,
+      "validates": "algorithm",
+      "stability_mode": "reviewed_conclusion_floor",
+      "meaning": "The expanded-corpus same-address section gradient remains strong.",
+      "provenance": {"origin_review": "RP-20260616-013", "reviewed_value_status": "direct_exact_0.9137"}
+    },
+    {
+      "anchor_id": "axis_a_primary_rows",
+      "artifact": "eval_set_v0_35_n2/eval_set_v0.json",
+      "json_path": ["axis_a_same_address_primary", "row_count"],
+      "operator": "equal",
+      "expected": 24,
+      "validates": "data",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The guarded expanded-corpus Axis A denominator is unchanged.",
+      "provenance": {"origin_review": "RP-20260616-013", "reviewed_value_status": "direct_exact_24"}
+    },
+    {
+      "anchor_id": "entity_library_documents",
+      "artifact": "corpus_frequency_v0_rpsk35_nk34/corpus_frequency_v0.json",
+      "json_path": ["document_count"],
+      "operator": "equal",
+      "expected": 475,
+      "validates": "data",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The RSPK+NK entity-frequency corpus is not silently truncated.",
+      "provenance": {"origin_review": "RP-20260617-015", "reviewed_value_status": "direct_exact_475"}
+    },
+    {
+      "anchor_id": "table_form_candidates",
+      "artifact": "typical_element_candidates_v0/typical_element_candidates_v0.json",
+      "json_path": ["candidate_count"],
+      "operator": "equal",
+      "expected": 531,
+      "validates": "algorithm",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The table-form candidate catalog is stable.",
+      "provenance": {"origin_review": "RP-20260617-016", "reviewed_value_status": "direct_exact_531"}
+    },
+    {
+      "anchor_id": "meaningful_table_forms",
+      "artifact": "typical_element_candidates_v0/typical_element_candidates_v0.json",
+      "json_path": ["candidate_status_counts", "candidate"],
+      "operator": "equal",
+      "expected": 426,
+      "validates": "algorithm",
+      "stability_mode": "exact_snapshot",
+      "meaning": "Meaningful forms stay separated from trivial micro-forms.",
+      "provenance": {"origin_review": "RP-20260617-016", "reviewed_value_status": "direct_exact_426"}
+    },
+    {
+      "anchor_id": "text_candidates_after_encoding_repair",
+      "artifact": "text_element_library_v0/text_element_library_v0.json",
+      "json_path": ["candidate_count"],
+      "operator": "equal",
+      "expected": 42993,
+      "validates": "algorithm",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The post-encoding-repair text candidate catalog is stable.",
+      "provenance": {"origin_review": "RP-20260618-020", "reviewed_value_status": "direct_exact_42993"}
+    },
+    {
+      "anchor_id": "rare_cross_org_text_bridges",
+      "artifact": "text_element_library_v0/text_element_library_v0.json",
+      "json_path": ["candidate_class_counts", "cross_org_text_bridge"],
+      "operator": "equal",
+      "expected": 250,
+      "validates": "algorithm",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The rarity guard continues to suppress normative text flooding.",
+      "provenance": {"origin_review": "RP-20260618-020", "reviewed_value_status": "direct_exact_250"}
+    },
+    {
+      "anchor_id": "combined_library_report_documents",
+      "artifact": "section_library_report_v0/section_library_report_v0.json",
+      "json_path": ["document_count"],
+      "operator": "equal",
+      "expected": 474,
+      "validates": "product_scenario",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The combined text+table UC1 report retains its reviewed denominator.",
+      "provenance": {"origin_review": "RP-20260617-018", "reviewed_value_status": "direct_exact_474; one fewer than entity corpus remains documented, not inferred as an invariant"}
+    },
+    {
+      "anchor_id": "page_near_match_pages",
+      "artifact": "page_near_match_v0/page_near_match_v0.json",
+      "json_path": ["page_count"],
+      "operator": "equal",
+      "expected": 10826,
+      "validates": "data",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The page near-match denominator is stable.",
+      "provenance": {"origin_review": "RP-20260618-022", "reviewed_value_status": "direct_exact_10826"}
+    },
+    {
+      "anchor_id": "page_exact_recall_total",
+      "artifact": "page_near_match_v0/page_near_match_v0.json",
+      "operands": [
+        {"name": "body", "json_path": ["top_neighbor_class_counts", "any:other:exact_match"]},
+        {"name": "title", "json_path": ["top_neighbor_class_counts", "any:title_anchor:exact_match"]}
+      ],
+      "operator": "sum_equal",
+      "expected": 5481,
+      "validates": "algorithm",
+      "stability_mode": "reviewed_aggregate_exact",
+      "meaning": "The reviewed aggregate exact-match recall remains 5481 of 5481 after shortlisting.",
+      "provenance": {"origin_review": "RP-20260618-022", "reviewed_value_status": "direct_aggregate_exact_5481; body/title operands are artifact decomposition"}
+    },
+    {
+      "anchor_id": "cross_org_title_unlock",
+      "artifact": "page_near_match_v0/page_near_match_v0.json",
+      "json_path": ["cross_org_title_near_match_unlock_count"],
+      "operator": "equal",
+      "expected": 367,
+      "validates": "algorithm",
+      "stability_mode": "exact_snapshot",
+      "meaning": "Near-match still unlocks cross-organization title similarity beyond exact hashes.",
+      "provenance": {"origin_review": "RP-20260618-022", "reviewed_value_status": "direct_exact_367"}
+    },
+    {
+      "anchor_id": "borrowing_negative_control",
+      "artifact": "page_near_match_calibration_v0/page_near_match_calibration_v0.json",
+      "json_path": ["borrowing_candidate_count"],
+      "operator": "equal",
+      "expected": 0,
+      "validates": "product_scenario",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The reviewed RSPK-NK control count is unchanged; this does not validate calibration thresholds or prove general non-borrowing.",
+      "provenance": {"origin_review": "RP-20260618-024", "reviewed_value_status": "direct_exact_0"}
+    },
+    {
+      "anchor_id": "provenance_third_party_assessed",
+      "artifact": "provenance_assessment_v0/provenance_assessment_v0.json",
+      "json_path": ["authorship_scope_counts", "third_party"],
+      "operator": "equal",
+      "expected": 30,
+      "validates": "product_scenario",
+      "stability_mode": "exact_snapshot",
+      "meaning": "The reviewed third-party provenance layer remains attached.",
+      "provenance": {"origin_review": "RP-20260618-025", "reviewed_value_status": "direct_exact_30"}
+    },
+    {
+      "anchor_id": "gip_h1_residual_shingle_separation",
+      "artifact": "gip_control_provenance_residual_v0/gip_control_provenance_residual_v0.json",
+      "operands": [
+        {"name": "same_gip", "filter": {"list_path": ["relation_headlines"], "where": {"cell_kind": "h1_within_org_diff_gip", "relation": "same_gip"}, "value_path": ["residual_page_near_shingle_mean_median_v0_3"]}},
+        {"name": "diff_gip", "filter": {"list_path": ["relation_headlines"], "where": {"cell_kind": "h1_within_org_diff_gip", "relation": "diff_gip"}, "value_path": ["residual_page_near_shingle_mean_median_v0_3"]}}
+      ],
+      "operator": "difference_at_least",
+      "left_operand": "same_gip",
+      "right_operand": "diff_gip",
+      "minimum_difference": 0.25,
+      "validates": "algorithm",
+      "stability_mode": "reviewed_relational_floor",
+      "meaning": "Same-GIP residual shingle similarity remains materially above different-GIP similarity.",
+      "provenance": {"origin_review": "RP-20260619-037", "reviewed_value_status": "direct_exact_same_0.3559_diff_0.0394; conservative gap floor 0.25 vs reviewed gap 0.3165"}
+    },
+    {
+      "anchor_id": "gip_h1_residual_strong_share_separation",
+      "artifact": "gip_control_provenance_residual_v0/gip_control_provenance_residual_v0.json",
+      "operands": [
+        {"name": "same_gip", "filter": {"list_path": ["relation_headlines"], "where": {"cell_kind": "h1_within_org_diff_gip", "relation": "same_gip"}, "value_path": ["residual_page_near_strong_share_median_v0_3"]}},
+        {"name": "diff_gip", "filter": {"list_path": ["relation_headlines"], "where": {"cell_kind": "h1_within_org_diff_gip", "relation": "diff_gip"}, "value_path": ["residual_page_near_strong_share_median_v0_3"]}}
+      ],
+      "operator": "difference_at_least",
+      "left_operand": "same_gip",
+      "right_operand": "diff_gip",
+      "minimum_difference": 0.6,
+      "validates": "algorithm",
+      "stability_mode": "reviewed_relational_floor",
+      "meaning": "Same-GIP residual strong-page reuse remains materially above different-GIP reuse.",
+      "provenance": {"origin_review": "RP-20260619-037", "reviewed_value_status": "direct_exact_same_0.7851_diff_0.0727; conservative gap floor 0.60 vs reviewed gap 0.7124"}
+    }
+  ]
+}

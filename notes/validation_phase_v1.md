@@ -12,7 +12,7 @@
 
 ## Milestone order
 
-1. Freeze validated behavior as executable golden anchors.
+1. Freeze current artifact behavior and reviewed relational conclusions as executable golden anchors.
 2. Build a controlled source-level injection benchmark for text and tables before feature extraction.
 3. Measure retrieval recall/precision/rank stability and shortlist completeness.
 4. Calibrate candidate-routing thresholds without creating legal verdicts.
@@ -22,4 +22,8 @@
 
 ## Golden scope
 
-The golden suite protects established denominators and conclusions. It does not claim new accuracy. Intentional model or corpus changes must explain and version any golden update rather than silently overwriting expected values.
+The active `golden_anchors_v1` suite protects current frozen-artifact behavior and explicitly reviewed relational conclusions. It does not claim that every current artifact value was newly validated, and it does not claim new model accuracy. Each anchor records its originating RP and whether it is an exact reviewed value, an artifact decomposition of a reviewed aggregate, or a conservative conclusion floor.
+
+`golden_anchors_v0` is retained as the reviewed pilot snapshot. It is superseded by v1 because v0 used permissive numeric coercion, hand-bracketed GIP values, and incomplete per-anchor provenance. Intentional model or corpus changes must explain and version any golden update rather than silently overwriting expected values.
+
+The `474` combined-report denominator and `475` entity-corpus denominator remain separate exact snapshots. Their one-document difference is documented but is not promoted to a universal invariant: the two artifacts have different downstream inclusion scopes.
