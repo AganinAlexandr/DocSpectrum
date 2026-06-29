@@ -13,11 +13,11 @@
 ## Milestone order
 
 1. Freeze validated behavior as executable golden anchors.
-2. Build a controlled feature-level injection benchmark for text and tables.
+2. Build a controlled source-level injection benchmark for text and tables before feature extraction.
 3. Measure retrieval recall/precision/rank stability and shortlist completeness.
 4. Calibrate candidate-routing thresholds without creating legal verdicts.
 5. Emit a multi-axis result envelope with provenance, coverage, confidence, and limitations.
-6. Add a graphics axis and a separate graphics injection benchmark.
+6. Add a graphics axis and a separate source-level graphics injection benchmark.
 7. Run the natural 13-object holdout once only after the contracts are frozen.
 
 ## Golden scope
